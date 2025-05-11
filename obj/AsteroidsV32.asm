@@ -7,12 +7,23 @@
   %define global_malloc_start_address 0
   %define global_malloc_end_address 1
   %define global_malloc_first_block 2
-  %define global_projectiles 3
-  %define global_asteroidShapes 103
-  %define global_bigAsteroids 223
-  %define global_mediumAsteroids 230
-  %define global_smallAsteroids 370
-  %define global_projectileOffset 650
+  %define global_ASTEROID_RADIUS_BIG 3
+  %define global_ASTEROID_RADIUS_MEDIUM 4
+  %define global_ASTEROID_RADIUS_SMALL 5
+  %define global_score 6
+  %define global_maxScore 7
+  %define global_lives 8
+  %define global_isAlive 9
+  %define global_numberBuffer 10
+  %define global_projectiles 22
+  %define global_asteroidShapes 122
+  %define global_bigAsteroidSpawnTimer 242
+  %define global_BIG_ASTEROID_SPAWN_INTERVAL 243
+  %define global_MAX_CONCURRENT_BIG_ASTEROIDS 244
+  %define global_bigAsteroids 245
+  %define global_mediumAsteroids 280
+  %define global_smallAsteroids 420
+  %define global_projectileOffset 700
 
 __global_scope_initialization:
   push BP
@@ -23,230 +34,146 @@ __global_scope_initialization:
   mov [global_malloc_end_address], R0
   mov R0, -1
   mov [global_malloc_first_block], R0
-  mov R0, -3
+  mov R0, 15.000000
+  mov [global_ASTEROID_RADIUS_BIG], R0
+  mov R0, 10.000000
+  mov [global_ASTEROID_RADIUS_MEDIUM], R0
+  mov R0, 5.000000
+  mov [global_ASTEROID_RADIUS_SMALL], R0
+  mov R0, 0
+  mov [global_score], R0
+  mov R0, 0
+  mov [global_maxScore], R0
+  mov R0, 3
+  mov [global_lives], R0
+  mov R0, 1
+  mov [global_isAlive], R0
+  mov R0, -20
   mov [global_asteroidShapes], R0
-  mov R0, 10
-  mov [104], R0
-  mov R0, 3
-  mov [105], R0
-  mov R0, 10
-  mov [106], R0
-  mov R0, 3
-  mov [107], R0
-  mov R0, 3
-  mov [108], R0
-  mov R0, 10
-  mov [109], R0
-  mov R0, 3
-  mov [110], R0
-  mov R0, 10
-  mov [111], R0
-  mov R0, -3
-  mov [112], R0
-  mov R0, 3
-  mov [113], R0
-  mov R0, -3
-  mov [114], R0
-  mov R0, -3
-  mov [115], R0
-  mov R0, -3
-  mov [116], R0
+  mov R0, 0
+  mov [123], R0
   mov R0, -10
-  mov [117], R0
-  mov R0, -3
-  mov [118], R0
-  mov R0, -10
+  mov [124], R0
+  mov R0, 20
+  mov [125], R0
+  mov R0, 10
+  mov [126], R0
+  mov R0, 20
   mov [127], R0
-  mov R0, 10
+  mov R0, 20
   mov [128], R0
-  mov R0, -10
+  mov R0, 0
   mov [129], R0
-  mov R0, 40
+  mov R0, 10
   mov [130], R0
-  mov R0, 10
+  mov R0, -20
   mov [131], R0
-  mov R0, 40
+  mov R0, -10
   mov [132], R0
-  mov R0, 10
+  mov R0, -20
   mov [133], R0
-  mov R0, 10
-  mov [134], R0
-  mov R0, 40
-  mov [135], R0
-  mov R0, 10
-  mov [136], R0
-  mov R0, 40
-  mov [137], R0
-  mov R0, -10
-  mov [138], R0
-  mov R0, 10
-  mov [139], R0
-  mov R0, -10
-  mov [140], R0
-  mov R0, 10
-  mov [141], R0
-  mov R0, -40
-  mov [142], R0
-  mov R0, -10
-  mov [143], R0
-  mov R0, -40
-  mov [144], R0
-  mov R0, -10
-  mov [145], R0
-  mov R0, -10
+  mov R0, -20
   mov [146], R0
-  mov R0, -40
+  mov R0, 10
   mov [147], R0
-  mov R0, -10
+  mov R0, 0
   mov [148], R0
-  mov R0, -40
+  mov R0, 20
   mov [149], R0
   mov R0, 10
   mov [150], R0
-  mov R0, -1
+  mov R0, 0
   mov [151], R0
-  mov R0, 1
+  mov R0, 20
   mov [152], R0
-  mov R0, -1
+  mov R0, 0
   mov [153], R0
-  mov R0, 4
+  mov R0, 0
   mov [154], R0
-  mov R0, 1
+  mov R0, -20
   mov [155], R0
-  mov R0, 4
+  mov R0, -10
   mov [156], R0
-  mov R0, 1
+  mov R0, -20
   mov [157], R0
-  mov R0, 1
-  mov [158], R0
-  mov R0, 4
-  mov [159], R0
-  mov R0, 1
-  mov [160], R0
-  mov R0, 4
-  mov [161], R0
-  mov R0, -1
-  mov [162], R0
-  mov R0, 1
-  mov [163], R0
-  mov R0, -1
-  mov [164], R0
-  mov R0, 1
-  mov [165], R0
-  mov R0, -4
-  mov [166], R0
-  mov R0, -1
-  mov [167], R0
-  mov R0, -4
-  mov [168], R0
-  mov R0, -1
-  mov [169], R0
-  mov R0, -1
+  mov R0, -15
   mov [170], R0
-  mov R0, -4
+  mov R0, 15
   mov [171], R0
-  mov R0, -1
+  mov R0, 0
   mov [172], R0
-  mov R0, -4
+  mov R0, 10
   mov [173], R0
-  mov R0, 1
+  mov R0, 15
   mov [174], R0
-  mov R0, -1
+  mov R0, 15
   mov [175], R0
-  mov R0, 1
+  mov R0, 10
   mov [176], R0
-  mov R0, -1
+  mov R0, -10
   mov [177], R0
-  mov R0, 4
+  mov R0, 0
   mov [178], R0
-  mov R0, 1
+  mov R0, -5
   mov [179], R0
-  mov R0, 4
+  mov R0, -10
   mov [180], R0
-  mov R0, 1
+  mov R0, -10
   mov [181], R0
-  mov R0, 1
-  mov [182], R0
-  mov R0, 4
-  mov [183], R0
-  mov R0, 1
-  mov [184], R0
-  mov R0, 4
-  mov [185], R0
-  mov R0, -1
-  mov [186], R0
-  mov R0, 1
-  mov [187], R0
-  mov R0, -1
-  mov [188], R0
-  mov R0, 1
-  mov [189], R0
-  mov R0, -4
-  mov [190], R0
-  mov R0, -1
-  mov [191], R0
-  mov R0, -4
-  mov [192], R0
-  mov R0, -1
-  mov [193], R0
-  mov R0, -1
+  mov R0, 0
   mov [194], R0
-  mov R0, -4
+  mov R0, 15
   mov [195], R0
-  mov R0, -1
+  mov R0, 10
   mov [196], R0
-  mov R0, -4
+  mov R0, 5
   mov [197], R0
-  mov R0, 1
+  mov R0, 20
   mov [198], R0
-  mov R0, -1
+  mov R0, 10
   mov [199], R0
-  mov R0, 1
+  mov R0, 0
   mov [200], R0
-  mov R0, -1
+  mov R0, -10
   mov [201], R0
-  mov R0, 4
+  mov R0, -20
   mov [202], R0
-  mov R0, 1
+  mov R0, 10
   mov [203], R0
-  mov R0, 4
+  mov R0, -10
   mov [204], R0
-  mov R0, 1
+  mov R0, 5
   mov [205], R0
-  mov R0, 1
-  mov [206], R0
-  mov R0, 4
-  mov [207], R0
-  mov R0, 1
-  mov [208], R0
-  mov R0, 4
-  mov [209], R0
-  mov R0, -1
-  mov [210], R0
-  mov R0, 1
-  mov [211], R0
-  mov R0, -1
-  mov [212], R0
-  mov R0, 1
-  mov [213], R0
-  mov R0, -4
-  mov [214], R0
-  mov R0, -1
-  mov [215], R0
-  mov R0, -4
-  mov [216], R0
-  mov R0, -1
-  mov [217], R0
-  mov R0, -1
+  mov R0, -10
   mov [218], R0
-  mov R0, -4
+  mov R0, 0
   mov [219], R0
-  mov R0, -1
+  mov R0, -5
   mov [220], R0
-  mov R0, -4
+  mov R0, 10
   mov [221], R0
-  mov R0, 1
+  mov R0, 5
   mov [222], R0
+  mov R0, 10
+  mov [223], R0
+  mov R0, 10
+  mov [224], R0
+  mov R0, 0
+  mov [225], R0
+  mov R0, 5
+  mov [226], R0
+  mov R0, -10
+  mov [227], R0
+  mov R0, -5
+  mov [228], R0
+  mov R0, -10
+  mov [229], R0
+  mov R0, 0
+  mov [global_bigAsteroidSpawnTimer], R0
+  mov R0, 300
+  mov [global_BIG_ASTEROID_SPAWN_INTERVAL], R0
+  mov R0, 5
+  mov [global_MAX_CONCURRENT_BIG_ASTEROIDS], R0
   mov R0, 20.000000
   mov [global_projectileOffset], R0
   mov SP, BP
@@ -2909,13 +2836,13 @@ __function_init_asteroid:
   mov R1, [BP+2]
   iadd R1, 6
   mov [R1], R0
-__if_2058_start:
+__if_1980_start:
   call __function_rand
   mov R1, R0
   imod R1, 2
   ieq R1, 0
   mov R0, R1
-  jf R0, __if_2058_else
+  jf R0, __if_1980_else
   call __function_rand
   mov R1, R0
   imod R1, 3
@@ -2925,8 +2852,8 @@ __if_2058_start:
   iadd R2, 2
   mov [R2], R1
   mov R0, R1
-  jmp __if_2058_end
-__if_2058_else:
+  jmp __if_1980_end
+__if_1980_else:
   call __function_rand
   mov R1, R0
   imod R1, 3
@@ -2937,14 +2864,14 @@ __if_2058_else:
   iadd R2, 2
   mov [R2], R1
   mov R0, R1
-__if_2058_end:
-__if_2083_start:
+__if_1980_end:
+__if_2005_start:
   call __function_rand
   mov R1, R0
   imod R1, 2
   ieq R1, 0
   mov R0, R1
-  jf R0, __if_2083_else
+  jf R0, __if_2005_else
   call __function_rand
   mov R1, R0
   imod R1, 3
@@ -2954,8 +2881,8 @@ __if_2083_start:
   iadd R2, 3
   mov [R2], R1
   mov R0, R1
-  jmp __if_2083_end
-__if_2083_else:
+  jmp __if_2005_end
+__if_2005_else:
   call __function_rand
   mov R1, R0
   imod R1, 3
@@ -2966,36 +2893,61 @@ __if_2083_else:
   iadd R2, 3
   mov [R2], R1
   mov R0, R1
-__if_2083_end:
-  mov R0, 0.000000
+__if_2005_end:
+__if_2030_start:
+  mov R1, [BP+2]
+  iadd R1, 2
+  mov R0, [R1]
+  feq R0, 0.000000
+  jf R0, __if_2030_end
+  mov R0, 1.000000
   mov R1, [BP+2]
   iadd R1, 2
   mov [R1], R0
-  mov R0, 0.000000
+__if_2030_end:
+__if_2039_start:
+  mov R1, [BP+2]
+  iadd R1, 3
+  mov R0, [R1]
+  feq R0, 0.000000
+  jf R0, __if_2039_end
+  mov R0, 1.000000
   mov R1, [BP+2]
   iadd R1, 3
   mov [R1], R0
-  mov R0, 320.000000
-  mov R1, [BP+2]
-  mov [R1], R0
-  mov R0, 180.000000
-  mov R1, [BP+2]
-  iadd R1, 1
-  mov [R1], R0
-__if_2128_start:
+__if_2039_end:
+  call __function_rand
+  mov R1, R0
+  imod R1, 640
+  cif R1
+  mov R2, [BP+2]
+  mov [R2], R1
+  mov R0, R1
+  call __function_rand
+  mov R1, R0
+  imod R1, 360
+  cif R1
+  mov R2, [BP+2]
+  iadd R2, 1
+  mov [R2], R1
+  mov R0, R1
+__if_2060_start:
   mov R0, [BP+3]
   ieq R0, 2
-  jf R0, __if_2128_else
-  mov R0, 0
-  mov R1, [BP+2]
-  iadd R1, 4
-  mov [R1], R0
-  jmp __if_2128_end
-__if_2128_else:
-__if_2136_start:
+  jf R0, __if_2060_else
+  call __function_rand
+  mov R1, R0
+  imod R1, 2
+  mov R2, [BP+2]
+  iadd R2, 4
+  mov [R2], R1
+  mov R0, R1
+  jmp __if_2060_end
+__if_2060_else:
+__if_2070_start:
   mov R0, [BP+3]
   ieq R0, 1
-  jf R0, __if_2136_else
+  jf R0, __if_2070_else
   call __function_rand
   mov R1, R0
   imod R1, 2
@@ -3004,14 +2956,14 @@ __if_2136_start:
   iadd R2, 4
   mov [R2], R1
   mov R0, R1
-  jmp __if_2136_end
-__if_2136_else:
+  jmp __if_2070_end
+__if_2070_else:
   mov R0, 4
   mov R1, [BP+2]
   iadd R1, 4
   mov [R1], R0
-__if_2136_end:
-__if_2128_end:
+__if_2070_end:
+__if_2060_end:
 __function_init_asteroid_return:
   mov SP, BP
   pop BP
@@ -3023,11 +2975,11 @@ __function_spawn_big:
   isub SP, 3
   mov R0, 0
   mov [BP-1], R0
-__for_2156_start:
+__for_2090_start:
   mov R0, [BP-1]
-  ilt R0, 1
-  jf R0, __for_2156_end
-__if_2166_start:
+  ilt R0, 5
+  jf R0, __for_2090_end
+__if_2100_start:
   mov R1, global_bigAsteroids
   mov R2, [BP-1]
   imul R2, 7
@@ -3035,7 +2987,7 @@ __if_2166_start:
   iadd R1, 5
   mov R0, [R1]
   bnot R0
-  jf R0, __if_2166_end
+  jf R0, __if_2100_end
   mov R1, global_bigAsteroids
   mov R2, [BP-1]
   imul R2, 7
@@ -3071,6 +3023,23 @@ __if_2166_start:
   iadd R2, 2
   mov [R2], R1
   mov R0, R1
+__if_2136_start:
+  mov R1, global_bigAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 2
+  mov R0, [R1]
+  feq R0, 0.000000
+  jf R0, __if_2136_end
+  mov R0, 1.000000
+  mov R1, global_bigAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 2
+  mov [R1], R0
+__if_2136_end:
   call __function_rand
   mov R1, R0
   imod R1, 5
@@ -3083,15 +3052,32 @@ __if_2166_start:
   iadd R2, 3
   mov [R2], R1
   mov R0, R1
-  jmp __for_2156_end
-__if_2166_end:
-__for_2156_continue:
+__if_2160_start:
+  mov R1, global_bigAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 3
+  mov R0, [R1]
+  feq R0, 0.000000
+  jf R0, __if_2160_end
+  mov R0, 1.000000
+  mov R1, global_bigAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 3
+  mov [R1], R0
+__if_2160_end:
+  jmp __for_2090_end
+__if_2100_end:
+__for_2090_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_2156_start
-__for_2156_end:
+  jmp __for_2090_start
+__for_2090_end:
 __function_spawn_big_return:
   mov SP, BP
   pop BP
@@ -3103,11 +3089,11 @@ __function_spawn_medium:
   isub SP, 3
   mov R0, 0
   mov [BP-1], R0
-__for_2217_start:
+__for_2177_start:
   mov R0, [BP-1]
   ilt R0, 20
-  jf R0, __for_2217_end
-__if_2227_start:
+  jf R0, __for_2177_end
+__if_2187_start:
   mov R1, global_mediumAsteroids
   mov R2, [BP-1]
   imul R2, 7
@@ -3115,7 +3101,7 @@ __if_2227_start:
   iadd R1, 5
   mov R0, [R1]
   bnot R0
-  jf R0, __if_2227_end
+  jf R0, __if_2187_end
   mov R1, global_mediumAsteroids
   mov R2, [BP-1]
   imul R2, 7
@@ -3151,6 +3137,23 @@ __if_2227_start:
   iadd R2, 2
   mov [R2], R1
   mov R0, R1
+__if_2223_start:
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 2
+  mov R0, [R1]
+  feq R0, 0.000000
+  jf R0, __if_2223_end
+  mov R0, 1.000000
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 2
+  mov [R1], R0
+__if_2223_end:
   call __function_rand
   mov R1, R0
   imod R1, 5
@@ -3163,15 +3166,32 @@ __if_2227_start:
   iadd R2, 3
   mov [R2], R1
   mov R0, R1
-  jmp __for_2217_end
-__if_2227_end:
-__for_2217_continue:
+__if_2247_start:
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 3
+  mov R0, [R1]
+  feq R0, 0.000000
+  jf R0, __if_2247_end
+  mov R0, 1.000000
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 3
+  mov [R1], R0
+__if_2247_end:
+  jmp __for_2177_end
+__if_2187_end:
+__for_2177_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_2217_start
-__for_2217_end:
+  jmp __for_2177_start
+__for_2177_end:
 __function_spawn_medium_return:
   mov SP, BP
   pop BP
@@ -3183,11 +3203,11 @@ __function_spawn_small:
   isub SP, 3
   mov R0, 0
   mov [BP-1], R0
-__for_2278_start:
+__for_2264_start:
   mov R0, [BP-1]
   ilt R0, 40
-  jf R0, __for_2278_end
-__if_2288_start:
+  jf R0, __for_2264_end
+__if_2274_start:
   mov R1, global_smallAsteroids
   mov R2, [BP-1]
   imul R2, 7
@@ -3195,7 +3215,7 @@ __if_2288_start:
   iadd R1, 5
   mov R0, [R1]
   bnot R0
-  jf R0, __if_2288_end
+  jf R0, __if_2274_end
   mov R1, global_smallAsteroids
   mov R2, [BP-1]
   imul R2, 7
@@ -3231,6 +3251,23 @@ __if_2288_start:
   iadd R2, 2
   mov [R2], R1
   mov R0, R1
+__if_2310_start:
+  mov R1, global_smallAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 2
+  mov R0, [R1]
+  feq R0, 0.000000
+  jf R0, __if_2310_end
+  mov R0, 1.000000
+  mov R1, global_smallAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 2
+  mov [R1], R0
+__if_2310_end:
   call __function_rand
   mov R1, R0
   imod R1, 5
@@ -3243,15 +3280,32 @@ __if_2288_start:
   iadd R2, 3
   mov [R2], R1
   mov R0, R1
-  jmp __for_2278_end
-__if_2288_end:
-__for_2278_continue:
+__if_2334_start:
+  mov R1, global_smallAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 3
+  mov R0, [R1]
+  feq R0, 0.000000
+  jf R0, __if_2334_end
+  mov R0, 1.000000
+  mov R1, global_smallAsteroids
+  mov R2, [BP-1]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 3
+  mov [R1], R0
+__if_2334_end:
+  jmp __for_2264_end
+__if_2274_end:
+__for_2264_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_2278_start
-__for_2278_end:
+  jmp __for_2264_start
+__for_2264_end:
 __function_spawn_small_return:
   mov SP, BP
   pop BP
@@ -3389,34 +3443,34 @@ __function_update_asteroid:
   mov R1, [BP+2]
   iadd R1, 1
   mov [R1], R0
-__if_2408_start:
+__if_2420_start:
   mov R1, [BP+2]
   mov R0, [R1]
   flt R0, 0.000000
-  jf R0, __if_2408_end
+  jf R0, __if_2420_end
   mov R1, [BP+2]
   mov R0, [R1]
   fadd R0, 640.000000
   mov R1, [BP+2]
   mov [R1], R0
-__if_2408_end:
-__if_2417_start:
+__if_2420_end:
+__if_2429_start:
   mov R1, [BP+2]
   mov R0, [R1]
   fge R0, 640.000000
-  jf R0, __if_2417_end
+  jf R0, __if_2429_end
   mov R1, [BP+2]
   mov R0, [R1]
   fsub R0, 640.000000
   mov R1, [BP+2]
   mov [R1], R0
-__if_2417_end:
-__if_2426_start:
+__if_2429_end:
+__if_2438_start:
   mov R1, [BP+2]
   iadd R1, 1
   mov R0, [R1]
   flt R0, 0.000000
-  jf R0, __if_2426_end
+  jf R0, __if_2438_end
   mov R1, [BP+2]
   iadd R1, 1
   mov R0, [R1]
@@ -3424,13 +3478,13 @@ __if_2426_start:
   mov R1, [BP+2]
   iadd R1, 1
   mov [R1], R0
-__if_2426_end:
-__if_2435_start:
+__if_2438_end:
+__if_2447_start:
   mov R1, [BP+2]
   iadd R1, 1
   mov R0, [R1]
   fge R0, 360.000000
-  jf R0, __if_2435_end
+  jf R0, __if_2447_end
   mov R1, [BP+2]
   iadd R1, 1
   mov R0, [R1]
@@ -3438,7 +3492,7 @@ __if_2435_start:
   mov R1, [BP+2]
   iadd R1, 1
   mov [R1], R0
-__if_2435_end:
+__if_2447_end:
 __function_update_asteroid_return:
   mov SP, BP
   pop BP
@@ -3447,71 +3501,77 @@ __function_update_asteroid_return:
 __function_draw_asteroid:
   push BP
   mov BP, SP
-  isub SP, 10
-__if_2446_start:
+  isub SP, 12
+__if_2458_start:
   mov R1, [BP+2]
   iadd R1, 5
   mov R0, [R1]
   bnot R0
-  jf R0, __if_2446_end
+  jf R0, __if_2458_end
   jmp __function_draw_asteroid_return
-__if_2446_end:
+__if_2458_end:
   mov R1, [BP+2]
   iadd R1, 4
   mov R0, [R1]
   mov [BP-1], R0
-  mov R0, 0
+  mov R0, 6
   mov [BP-2], R0
-__for_2455_start:
-  mov R0, [BP-2]
-  ilt R0, 5
-  jf R0, __for_2455_end
-  mov R1, [BP+2]
-  mov R0, [R1]
-  mov R1, global_asteroidShapes
-  mov R2, [BP-1]
-  imul R2, 24
-  iadd R1, R2
-  mov R2, [BP-2]
-  imul R2, 2
-  iadd R1, R2
-  mov R1, [R1]
-  cif R1
-  fadd R0, R1
-  cfi R0
+  mov R0, 0
   mov [BP-3], R0
+__for_2470_start:
+  mov R0, [BP-3]
+  mov R1, [BP-2]
+  ilt R0, R1
+  jf R0, __for_2470_end
   mov R1, [BP+2]
-  iadd R1, 1
   mov R0, [R1]
   mov R1, global_asteroidShapes
   mov R2, [BP-1]
   imul R2, 24
   iadd R1, R2
-  mov R2, [BP-2]
+  mov R2, [BP-3]
   imul R2, 2
   iadd R1, R2
-  iadd R1, 1
   mov R1, [R1]
   cif R1
   fadd R0, R1
   cfi R0
   mov [BP-4], R0
   mov R1, [BP+2]
+  iadd R1, 1
   mov R0, [R1]
   mov R1, global_asteroidShapes
   mov R2, [BP-1]
   imul R2, 24
   iadd R1, R2
-  mov R2, [BP-2]
-  iadd R2, 1
-  imod R2, 5
+  mov R2, [BP-3]
+  imul R2, 2
+  iadd R1, R2
+  iadd R1, 1
+  mov R1, [R1]
+  cif R1
+  fadd R0, R1
+  cfi R0
+  mov [BP-5], R0
+  mov R0, [BP-3]
+  iadd R0, 1
+  mov R1, [BP-2]
+  imod R0, R1
+  mov [BP-6], R0
+  mov R1, [BP+2]
+  mov R0, [R1]
+  mov R1, global_asteroidShapes
+  mov R2, [BP-1]
+  imul R2, 24
+  iadd R1, R2
+  mov R2, [BP-6]
   imul R2, 2
   iadd R1, R2
   mov R1, [R1]
   cif R1
   fadd R0, R1
   cfi R0
-  mov [BP-5], R0
+  mov [BP-7], R0
   mov R1, [BP+2]
   iadd R1, 1
   mov R0, [R1]
@@ -3519,9 +3579,7 @@ __for_2455_start:
   mov R2, [BP-1]
   imul R2, 24
   iadd R1, R2
-  mov R2, [BP-2]
-  iadd R2, 1
-  imod R2, 5
+  mov R2, [BP-6]
   imul R2, 2
   iadd R1, R2
   iadd R1, 1
@@ -3529,23 +3587,32 @@ __for_2455_start:
   cif R1
   fadd R0, R1
   cfi R0
-  mov [BP-6], R0
-  mov R1, [BP-3]
-  mov [SP], R1
+  mov [BP-8], R0
   mov R1, [BP-4]
-  mov [SP+1], R1
+  mov [SP], R1
   mov R1, [BP-5]
+  mov [SP+1], R1
+  mov R1, [BP-7]
   mov [SP+2], R1
-  mov R1, [BP-6]
+  mov R1, [BP-8]
   mov [SP+3], R1
   call __function_draw_line
-__for_2455_continue:
-  mov R0, [BP-2]
+  mov R1, [BP-4]
+  mov [SP], R1
+  mov R1, [BP-5]
+  mov [SP+1], R1
+  mov R1, [BP-7]
+  mov [SP+2], R1
+  mov R1, [BP-8]
+  mov [SP+3], R1
+  call __function_draw_line
+__for_2470_continue:
+  mov R0, [BP-3]
   mov R1, R0
   iadd R1, 1
-  mov [BP-2], R1
-  jmp __for_2455_start
-__for_2455_end:
+  mov [BP-3], R1
+  jmp __for_2470_start
+__for_2470_end:
 __function_draw_asteroid_return:
   mov SP, BP
   pop BP
@@ -3557,88 +3624,88 @@ __function_draw_asteroids:
   isub SP, 2
   mov R0, 0
   mov [BP-1], R0
-__for_2529_start:
+__for_2547_start:
   mov R0, [BP-1]
-  ilt R0, 1
-  jf R0, __for_2529_end
-__if_2538_start:
+  ilt R0, 5
+  jf R0, __for_2547_end
+__if_2556_start:
   mov R1, global_bigAsteroids
   mov R2, [BP-1]
   imul R2, 7
   iadd R1, R2
   iadd R1, 5
   mov R0, [R1]
-  jf R0, __if_2538_end
+  jf R0, __if_2556_end
   mov R1, global_bigAsteroids
   mov R2, [BP-1]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
   call __function_draw_asteroid
-__if_2538_end:
-__for_2529_continue:
+__if_2556_end:
+__for_2547_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_2529_start
-__for_2529_end:
+  jmp __for_2547_start
+__for_2547_end:
   mov R0, 0
   mov [BP-1], R0
-__for_2548_start:
+__for_2566_start:
   mov R0, [BP-1]
   ilt R0, 20
-  jf R0, __for_2548_end
-__if_2557_start:
+  jf R0, __for_2566_end
+__if_2575_start:
   mov R1, global_mediumAsteroids
   mov R2, [BP-1]
   imul R2, 7
   iadd R1, R2
   iadd R1, 5
   mov R0, [R1]
-  jf R0, __if_2557_end
+  jf R0, __if_2575_end
   mov R1, global_mediumAsteroids
   mov R2, [BP-1]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
   call __function_draw_asteroid
-__if_2557_end:
-__for_2548_continue:
+__if_2575_end:
+__for_2566_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_2548_start
-__for_2548_end:
+  jmp __for_2566_start
+__for_2566_end:
   mov R0, 0
   mov [BP-1], R0
-__for_2567_start:
+__for_2585_start:
   mov R0, [BP-1]
   ilt R0, 40
-  jf R0, __for_2567_end
-__if_2576_start:
+  jf R0, __for_2585_end
+__if_2594_start:
   mov R1, global_smallAsteroids
   mov R2, [BP-1]
   imul R2, 7
   iadd R1, R2
   iadd R1, 5
   mov R0, [R1]
-  jf R0, __if_2576_end
+  jf R0, __if_2594_end
   mov R1, global_smallAsteroids
   mov R2, [BP-1]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
   call __function_draw_asteroid
-__if_2576_end:
-__for_2567_continue:
+__if_2594_end:
+__for_2585_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_2567_start
-__for_2567_end:
+  jmp __for_2585_start
+__for_2585_end:
 __function_draw_asteroids_return:
   mov SP, BP
   pop BP
@@ -3656,53 +3723,53 @@ __function_destroy_asteroid:
   mov R1, [BP+2]
   iadd R1, 5
   mov [R1], R0
-__if_2596_start:
+__if_2614_start:
   mov R0, [BP-1]
   igt R0, 0
-  jf R0, __if_2596_end
+  jf R0, __if_2614_end
   mov R0, -1
   mov [BP-2], R0
   mov R0, 0
   mov [BP-3], R0
-__if_2607_start:
+__if_2625_start:
   mov R0, [BP-1]
   ieq R0, 2
-  jf R0, __if_2607_else
+  jf R0, __if_2625_else
   mov R0, global_mediumAsteroids
   mov [BP-2], R0
   mov R0, 20
   mov [BP-3], R0
-  jmp __if_2607_end
-__if_2607_else:
-__if_2618_start:
+  jmp __if_2625_end
+__if_2625_else:
+__if_2636_start:
   mov R0, [BP-1]
   ieq R0, 1
-  jf R0, __if_2618_end
+  jf R0, __if_2636_end
   mov R0, global_smallAsteroids
   mov [BP-2], R0
   mov R0, 40
   mov [BP-3], R0
-__if_2618_end:
-__if_2607_end:
-__if_2629_start:
+__if_2636_end:
+__if_2625_end:
+__if_2647_start:
   mov R0, [BP-2]
   ine R0, -1
-  jf R0, __if_2629_end
+  jf R0, __if_2647_end
   mov R0, 0
   mov [BP-4], R0
   mov R0, 0
   mov [BP-5], R0
-__for_2637_start:
+__for_2655_start:
   mov R0, [BP-5]
   mov R1, [BP-3]
   ilt R0, R1
-  jf R0, __LogicalAnd_ShortCircuit_2645
+  jf R0, __LogicalAnd_ShortCircuit_2663
   mov R1, [BP-4]
   ilt R1, 2
   and R0, R1
-__LogicalAnd_ShortCircuit_2645:
-  jf R0, __for_2637_end
-__if_2651_start:
+__LogicalAnd_ShortCircuit_2663:
+  jf R0, __for_2655_end
+__if_2669_start:
   mov R1, [BP-2]
   mov R2, [BP-5]
   imul R2, 7
@@ -3710,7 +3777,7 @@ __if_2651_start:
   iadd R1, 5
   mov R0, [R1]
   bnot R0
-  jf R0, __if_2651_end
+  jf R0, __if_2669_end
   mov R1, [BP-2]
   mov R2, [BP-5]
   imul R2, 7
@@ -3764,16 +3831,16 @@ __if_2651_start:
   mov R1, R0
   iadd R1, 1
   mov [BP-4], R1
-__if_2651_end:
-__for_2637_continue:
+__if_2669_end:
+__for_2655_continue:
   mov R0, [BP-5]
   mov R1, R0
   iadd R1, 1
   mov [BP-5], R1
-  jmp __for_2637_start
-__for_2637_end:
-__if_2629_end:
-__if_2596_end:
+  jmp __for_2655_start
+__for_2655_end:
+__if_2647_end:
+__if_2614_end:
 __function_destroy_asteroid_return:
   mov SP, BP
   pop BP
@@ -3787,6 +3854,34 @@ __function_check_bullet_asteroid_collision:
   push R2
   push R3
   isub SP, 1
+__if_2725_start:
+  mov R0, [BP+2]
+  ine R0, -1
+  bnot R0
+  jt R0, __LogicalOr_ShortCircuit_2728
+  mov R1, [BP+3]
+  ine R1, -1
+  bnot R1
+  or R0, R1
+__LogicalOr_ShortCircuit_2728:
+  jt R0, __LogicalOr_ShortCircuit_2734
+  mov R2, [BP+2]
+  iadd R2, 4
+  mov R1, [R2]
+  bnot R1
+  or R0, R1
+__LogicalOr_ShortCircuit_2734:
+  jt R0, __LogicalOr_ShortCircuit_2738
+  mov R2, [BP+3]
+  iadd R2, 5
+  mov R1, [R2]
+  bnot R1
+  or R0, R1
+__LogicalOr_ShortCircuit_2738:
+  jf R0, __if_2725_end
+  mov R0, 0
+  jmp __function_check_bullet_asteroid_collision_return
+__if_2725_end:
   mov R1, [BP+2]
   mov R0, [R1]
   mov R2, [BP+3]
@@ -3813,14 +3908,14 @@ __function_check_bullet_asteroid_collision:
   mov [BP-3], R0
   mov R0, 20.000000
   mov [BP-4], R0
-__if_2734_start:
+__if_2768_start:
   mov R0, [BP-3]
   mov R1, [BP-4]
   flt R0, R1
-  jf R0, __if_2734_end
+  jf R0, __if_2768_end
   mov R0, 1
   jmp __function_check_bullet_asteroid_collision_return
-__if_2734_end:
+__if_2768_end:
   mov R0, 0
 __function_check_bullet_asteroid_collision_return:
   iadd SP, 1
@@ -3834,89 +3929,55 @@ __function_check_bullet_asteroid_collision_return:
 __function_update_bullets_and_asteroids:
   push BP
   mov BP, SP
-  isub SP, 4
+  isub SP, 5
   mov R0, 0
   mov [BP-1], R0
-__for_2744_start:
+__for_2778_start:
   mov R0, [BP-1]
   ilt R0, 20
-  jf R0, __for_2744_end
-__if_2754_start:
+  jf R0, __for_2778_end
+__if_2788_start:
   mov R1, global_projectiles
   mov R2, [BP-1]
   imul R2, 5
   iadd R1, R2
   iadd R1, 4
   mov R0, [R1]
-  jf R0, __if_2754_end
-  mov R1, global_projectiles
-  mov R2, [BP-1]
-  imul R2, 5
-  iadd R1, R2
-  mov R0, [R1]
-  mov R2, global_projectiles
-  mov R3, [BP-1]
-  imul R3, 5
-  iadd R2, R3
-  iadd R2, 2
-  mov R1, [R2]
-  fadd R0, R1
-  mov R1, global_projectiles
-  mov R2, [BP-1]
-  imul R2, 5
-  iadd R1, R2
-  mov [R1], R0
-  mov R1, global_projectiles
-  mov R2, [BP-1]
-  imul R2, 5
-  iadd R1, R2
-  iadd R1, 1
-  mov R0, [R1]
-  mov R2, global_projectiles
-  mov R3, [BP-1]
-  imul R3, 5
-  iadd R2, R3
-  iadd R2, 3
-  mov R1, [R2]
-  fadd R0, R1
-  mov R1, global_projectiles
-  mov R2, [BP-1]
-  imul R2, 5
-  iadd R1, R2
-  iadd R1, 1
-  mov [R1], R0
+  jf R0, __if_2788_end
   mov R0, 0
   mov [BP-2], R0
-__for_2778_start:
-  mov R0, [BP-2]
-  ilt R0, 1
-  jf R0, __for_2778_end
-__if_2788_start:
+  mov R0, 0
+  mov [BP-3], R0
+__for_2797_start:
+  mov R0, [BP-3]
+  ilt R0, 5
+  jf R0, __for_2797_end
+__if_2807_start:
   mov R2, global_bigAsteroids
-  mov R3, [BP-2]
+  mov R3, [BP-3]
   imul R3, 7
   iadd R2, R3
   iadd R2, 5
   mov R1, [R2]
-  jf R1, __LogicalAnd_ShortCircuit_2793
+  jf R1, __LogicalAnd_ShortCircuit_2812
   mov R3, global_projectiles
   mov R4, [BP-1]
   imul R4, 5
   iadd R3, R4
   mov [SP], R3
   mov R3, global_bigAsteroids
-  mov R4, [BP-2]
+  mov R4, [BP-3]
   imul R4, 7
   iadd R3, R4
   mov [SP+1], R3
   call __function_check_bullet_asteroid_collision
   mov R2, R0
   and R1, R2
-__LogicalAnd_ShortCircuit_2793:
+__LogicalAnd_ShortCircuit_2812:
   mov R0, R1
-  jf R0, __if_2788_end
+  jf R0, __if_2807_end
   mov R1, global_bigAsteroids
-  mov R2, [BP-2]
+  mov R2, [BP-3]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
@@ -3928,56 +3989,58 @@ __LogicalAnd_ShortCircuit_2793:
   iadd R1, R2
   iadd R1, 4
   mov [R1], R0
-  jmp __for_2778_end
-__if_2788_end:
-__for_2778_continue:
-  mov R0, [BP-2]
+  mov R0, [global_score]
   mov R1, R0
   iadd R1, 1
-  mov [BP-2], R1
-  jmp __for_2778_start
-__for_2778_end:
-  mov R0, 0
+  mov [global_score], R1
+  mov R0, 1
   mov [BP-2], R0
-__for_2816_start:
+  jmp __for_2797_end
+__if_2807_end:
+__for_2797_continue:
+  mov R0, [BP-3]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-3], R1
+  jmp __for_2797_start
+__for_2797_end:
+__if_2840_start:
   mov R0, [BP-2]
+  jf R0, __if_2840_end
+  jmp __for_2778_continue
+__if_2840_end:
+  mov R0, 0
+  mov [BP-3], R0
+__for_2843_start:
+  mov R0, [BP-3]
   ilt R0, 20
-  jf R0, __LogicalAnd_ShortCircuit_2827
-  mov R2, global_projectiles
-  mov R3, [BP-1]
-  imul R3, 5
-  iadd R2, R3
-  iadd R2, 4
-  mov R1, [R2]
-  and R0, R1
-__LogicalAnd_ShortCircuit_2827:
-  jf R0, __for_2816_end
-__if_2831_start:
+  jf R0, __for_2843_end
+__if_2853_start:
   mov R2, global_mediumAsteroids
-  mov R3, [BP-2]
+  mov R3, [BP-3]
   imul R3, 7
   iadd R2, R3
   iadd R2, 5
   mov R1, [R2]
-  jf R1, __LogicalAnd_ShortCircuit_2836
+  jf R1, __LogicalAnd_ShortCircuit_2858
   mov R3, global_projectiles
   mov R4, [BP-1]
   imul R4, 5
   iadd R3, R4
   mov [SP], R3
   mov R3, global_mediumAsteroids
-  mov R4, [BP-2]
+  mov R4, [BP-3]
   imul R4, 7
   iadd R3, R4
   mov [SP+1], R3
   call __function_check_bullet_asteroid_collision
   mov R2, R0
   and R1, R2
-__LogicalAnd_ShortCircuit_2836:
+__LogicalAnd_ShortCircuit_2858:
   mov R0, R1
-  jf R0, __if_2831_end
+  jf R0, __if_2853_end
   mov R1, global_mediumAsteroids
-  mov R2, [BP-2]
+  mov R2, [BP-3]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
@@ -3989,56 +4052,58 @@ __LogicalAnd_ShortCircuit_2836:
   iadd R1, R2
   iadd R1, 4
   mov [R1], R0
-  jmp __for_2816_end
-__if_2831_end:
-__for_2816_continue:
-  mov R0, [BP-2]
+  mov R0, [global_score]
   mov R1, R0
   iadd R1, 1
-  mov [BP-2], R1
-  jmp __for_2816_start
-__for_2816_end:
-  mov R0, 0
+  mov [global_score], R1
+  mov R0, 1
   mov [BP-2], R0
-__for_2859_start:
+  jmp __for_2843_end
+__if_2853_end:
+__for_2843_continue:
+  mov R0, [BP-3]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-3], R1
+  jmp __for_2843_start
+__for_2843_end:
+__if_2886_start:
   mov R0, [BP-2]
+  jf R0, __if_2886_end
+  jmp __for_2778_continue
+__if_2886_end:
+  mov R0, 0
+  mov [BP-3], R0
+__for_2889_start:
+  mov R0, [BP-3]
   ilt R0, 40
-  jf R0, __LogicalAnd_ShortCircuit_2870
-  mov R2, global_projectiles
-  mov R3, [BP-1]
-  imul R3, 5
-  iadd R2, R3
-  iadd R2, 4
-  mov R1, [R2]
-  and R0, R1
-__LogicalAnd_ShortCircuit_2870:
-  jf R0, __for_2859_end
-__if_2874_start:
+  jf R0, __for_2889_end
+__if_2899_start:
   mov R2, global_smallAsteroids
-  mov R3, [BP-2]
+  mov R3, [BP-3]
   imul R3, 7
   iadd R2, R3
   iadd R2, 5
   mov R1, [R2]
-  jf R1, __LogicalAnd_ShortCircuit_2879
+  jf R1, __LogicalAnd_ShortCircuit_2904
   mov R3, global_projectiles
   mov R4, [BP-1]
   imul R4, 5
   iadd R3, R4
   mov [SP], R3
   mov R3, global_smallAsteroids
-  mov R4, [BP-2]
+  mov R4, [BP-3]
   imul R4, 7
   iadd R3, R4
   mov [SP+1], R3
   call __function_check_bullet_asteroid_collision
   mov R2, R0
   and R1, R2
-__LogicalAnd_ShortCircuit_2879:
+__LogicalAnd_ShortCircuit_2904:
   mov R0, R1
-  jf R0, __if_2874_end
+  jf R0, __if_2899_end
   mov R1, global_smallAsteroids
-  mov R2, [BP-2]
+  mov R2, [BP-3]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
@@ -4050,24 +4115,429 @@ __LogicalAnd_ShortCircuit_2879:
   iadd R1, R2
   iadd R1, 4
   mov [R1], R0
-  jmp __for_2859_end
-__if_2874_end:
-__for_2859_continue:
-  mov R0, [BP-2]
+  mov R0, [global_score]
   mov R1, R0
   iadd R1, 1
-  mov [BP-2], R1
-  jmp __for_2859_start
-__for_2859_end:
-__if_2754_end:
-__for_2744_continue:
+  mov [global_score], R1
+  jmp __for_2889_end
+__if_2899_end:
+__for_2889_continue:
+  mov R0, [BP-3]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-3], R1
+  jmp __for_2889_start
+__for_2889_end:
+__if_2788_end:
+__for_2778_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_2744_start
-__for_2744_end:
+  jmp __for_2778_start
+__for_2778_end:
 __function_update_bullets_and_asteroids_return:
+  mov SP, BP
+  pop BP
+  ret
+
+__function_get_asteroid_collision_radius:
+  push BP
+  mov BP, SP
+  push R1
+__if_2931_start:
+  mov R0, [BP+2]
+  ine R0, -1
+  bnot R0
+  jf R0, __if_2931_end
+  mov R0, 0.000000
+  jmp __function_get_asteroid_collision_radius_return
+__if_2931_end:
+  mov R1, [BP+2]
+  iadd R1, 4
+  mov R0, [R1]
+  mov R1, 0
+  ieq R1, R0
+  jt R1, __switch_2936_case_0
+  mov R1, 1
+  ieq R1, R0
+  jt R1, __switch_2936_case_1
+  mov R1, 2
+  ieq R1, R0
+  jt R1, __switch_2936_case_2
+  mov R1, 3
+  ieq R1, R0
+  jt R1, __switch_2936_case_3
+  mov R1, 4
+  ieq R1, R0
+  jt R1, __switch_2936_case_4
+  jmp __switch_2936_default
+__switch_2936_case_0:
+__switch_2936_case_1:
+  mov R0, [global_ASTEROID_RADIUS_BIG]
+  jmp __function_get_asteroid_collision_radius_return
+__switch_2936_case_2:
+__switch_2936_case_3:
+  mov R0, [global_ASTEROID_RADIUS_MEDIUM]
+  jmp __function_get_asteroid_collision_radius_return
+__switch_2936_case_4:
+  mov R0, [global_ASTEROID_RADIUS_SMALL]
+  jmp __function_get_asteroid_collision_radius_return
+__switch_2936_default:
+__if_2956_start:
+  mov R1, [BP+2]
+  iadd R1, 6
+  mov R0, [R1]
+  ieq R0, 2
+  jf R0, __if_2956_end
+  mov R0, [global_ASTEROID_RADIUS_BIG]
+  jmp __function_get_asteroid_collision_radius_return
+__if_2956_end:
+__if_2963_start:
+  mov R1, [BP+2]
+  iadd R1, 6
+  mov R0, [R1]
+  ieq R0, 1
+  jf R0, __if_2963_end
+  mov R0, [global_ASTEROID_RADIUS_MEDIUM]
+  jmp __function_get_asteroid_collision_radius_return
+__if_2963_end:
+  mov R0, [global_ASTEROID_RADIUS_SMALL]
+  jmp __function_get_asteroid_collision_radius_return
+__switch_2936_end:
+__function_get_asteroid_collision_radius_return:
+  pop R1
+  mov SP, BP
+  pop BP
+  ret
+
+__function_check_ship_asteroid_collision:
+  push BP
+  mov BP, SP
+  isub SP, 5
+  push R1
+  push R2
+  isub SP, 1
+__if_2975_start:
+  mov R0, [BP+2]
+  ine R0, -1
+  bnot R0
+  jt R0, __LogicalOr_ShortCircuit_2978
+  mov R1, [BP+3]
+  ine R1, -1
+  bnot R1
+  or R0, R1
+__LogicalOr_ShortCircuit_2978:
+  jt R0, __LogicalOr_ShortCircuit_2984
+  mov R2, [BP+3]
+  iadd R2, 5
+  mov R1, [R2]
+  bnot R1
+  or R0, R1
+__LogicalOr_ShortCircuit_2984:
+  jf R0, __if_2975_end
+  mov R0, 0
+  jmp __function_check_ship_asteroid_collision_return
+__if_2975_end:
+  mov R1, [BP+2]
+  mov R0, [R1]
+  mov R2, [BP+3]
+  mov R1, [R2]
+  fsub R0, R1
+  mov [BP-1], R0
+  mov R1, [BP+2]
+  iadd R1, 1
+  mov R0, [R1]
+  mov R2, [BP+3]
+  iadd R2, 1
+  mov R1, [R2]
+  fsub R0, R1
+  mov [BP-2], R0
+  mov R0, [BP-1]
+  mov R1, [BP-1]
+  fmul R0, R1
+  mov R1, [BP-2]
+  mov R2, [BP-2]
+  fmul R1, R2
+  fadd R0, R1
+  mov [BP-3], R0
+  mov R1, [BP+3]
+  mov [SP], R1
+  call __function_get_asteroid_collision_radius
+  mov [BP-4], R0
+  mov R0, [BP-4]
+  fadd R0, 10.000000
+  mov [BP-5], R0
+  mov R0, [BP-3]
+  mov R1, [BP-5]
+  mov R2, [BP-5]
+  fmul R1, R2
+  flt R0, R1
+__function_check_ship_asteroid_collision_return:
+  iadd SP, 1
+  pop R2
+  pop R1
+  mov SP, BP
+  pop BP
+  ret
+
+__function_relocate_all_active_asteroids_safely:
+  push BP
+  mov BP, SP
+  isub SP, 10
+  mov R1, [BP+2]
+  mov R0, [R1]
+  mov [BP-1], R0
+  mov R1, [BP+2]
+  iadd R1, 1
+  mov R0, [R1]
+  mov [BP-2], R0
+  mov R0, 10000.000000
+  mov [BP-3], R0
+  mov R0, 0
+  mov [BP-5], R0
+__for_3043_start:
+  mov R0, [BP-5]
+  ilt R0, 5
+  jf R0, __for_3043_end
+__if_3053_start:
+  mov R1, global_bigAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 5
+  mov R0, [R1]
+  jf R0, __if_3053_end
+  mov R0, 0
+  mov [BP-4], R0
+__do_3067_start:
+  call __function_rand
+  mov R1, R0
+  imod R1, 640
+  cif R1
+  mov [BP-6], R1
+  mov R0, R1
+  call __function_rand
+  mov R1, R0
+  imod R1, 360
+  cif R1
+  mov [BP-7], R1
+  mov R0, R1
+  mov R0, [BP-6]
+  mov R1, [BP-1]
+  fsub R0, R1
+  mov [BP-9], R0
+  mov R0, [BP-7]
+  mov R1, [BP-2]
+  fsub R0, R1
+  mov [BP-10], R0
+  mov R0, [BP-9]
+  mov R1, [BP-9]
+  fmul R0, R1
+  mov R1, [BP-10]
+  mov R2, [BP-10]
+  fmul R1, R2
+  fadd R0, R1
+  mov [BP-8], R0
+  mov R0, [BP-4]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-4], R1
+__do_3067_continue:
+  mov R0, [BP-8]
+  mov R1, [BP-3]
+  flt R0, R1
+  jf R0, __LogicalAnd_ShortCircuit_3104
+  mov R1, [BP-4]
+  ilt R1, 100
+  and R0, R1
+__LogicalAnd_ShortCircuit_3104:
+  jt R0, __do_3067_start
+__do_3067_end:
+  mov R0, [BP-6]
+  mov R1, global_bigAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  mov [R1], R0
+  mov R0, [BP-7]
+  mov R1, global_bigAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 1
+  mov [R1], R0
+__if_3053_end:
+__for_3043_continue:
+  mov R0, [BP-5]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-5], R1
+  jmp __for_3043_start
+__for_3043_end:
+  mov R0, 0
+  mov [BP-5], R0
+__for_3119_start:
+  mov R0, [BP-5]
+  ilt R0, 20
+  jf R0, __for_3119_end
+__if_3129_start:
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 5
+  mov R0, [R1]
+  jf R0, __if_3129_end
+  mov R0, 0
+  mov [BP-4], R0
+__do_3143_start:
+  call __function_rand
+  mov R1, R0
+  imod R1, 640
+  cif R1
+  mov [BP-6], R1
+  mov R0, R1
+  call __function_rand
+  mov R1, R0
+  imod R1, 360
+  cif R1
+  mov [BP-7], R1
+  mov R0, R1
+  mov R0, [BP-6]
+  mov R1, [BP-1]
+  fsub R0, R1
+  mov [BP-9], R0
+  mov R0, [BP-7]
+  mov R1, [BP-2]
+  fsub R0, R1
+  mov [BP-10], R0
+  mov R0, [BP-9]
+  mov R1, [BP-9]
+  fmul R0, R1
+  mov R1, [BP-10]
+  mov R2, [BP-10]
+  fmul R1, R2
+  fadd R0, R1
+  mov [BP-8], R0
+  mov R0, [BP-4]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-4], R1
+__do_3143_continue:
+  mov R0, [BP-8]
+  mov R1, [BP-3]
+  flt R0, R1
+  jf R0, __LogicalAnd_ShortCircuit_3180
+  mov R1, [BP-4]
+  ilt R1, 100
+  and R0, R1
+__LogicalAnd_ShortCircuit_3180:
+  jt R0, __do_3143_start
+__do_3143_end:
+  mov R0, [BP-6]
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  mov [R1], R0
+  mov R0, [BP-7]
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 1
+  mov [R1], R0
+__if_3129_end:
+__for_3119_continue:
+  mov R0, [BP-5]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-5], R1
+  jmp __for_3119_start
+__for_3119_end:
+  mov R0, 0
+  mov [BP-5], R0
+__for_3195_start:
+  mov R0, [BP-5]
+  ilt R0, 40
+  jf R0, __for_3195_end
+__if_3205_start:
+  mov R1, global_smallAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 5
+  mov R0, [R1]
+  jf R0, __if_3205_end
+  mov R0, 0
+  mov [BP-4], R0
+__do_3219_start:
+  call __function_rand
+  mov R1, R0
+  imod R1, 640
+  cif R1
+  mov [BP-6], R1
+  mov R0, R1
+  call __function_rand
+  mov R1, R0
+  imod R1, 360
+  cif R1
+  mov [BP-7], R1
+  mov R0, R1
+  mov R0, [BP-6]
+  mov R1, [BP-1]
+  fsub R0, R1
+  mov [BP-9], R0
+  mov R0, [BP-7]
+  mov R1, [BP-2]
+  fsub R0, R1
+  mov [BP-10], R0
+  mov R0, [BP-9]
+  mov R1, [BP-9]
+  fmul R0, R1
+  mov R1, [BP-10]
+  mov R2, [BP-10]
+  fmul R1, R2
+  fadd R0, R1
+  mov [BP-8], R0
+  mov R0, [BP-4]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-4], R1
+__do_3219_continue:
+  mov R0, [BP-8]
+  mov R1, [BP-3]
+  flt R0, R1
+  jf R0, __LogicalAnd_ShortCircuit_3256
+  mov R1, [BP-4]
+  ilt R1, 100
+  and R0, R1
+__LogicalAnd_ShortCircuit_3256:
+  jt R0, __do_3219_start
+__do_3219_end:
+  mov R0, [BP-6]
+  mov R1, global_smallAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  mov [R1], R0
+  mov R0, [BP-7]
+  mov R1, global_smallAsteroids
+  mov R2, [BP-5]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 1
+  mov [R1], R0
+__if_3205_end:
+__for_3195_continue:
+  mov R0, [BP-5]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-5], R1
+  jmp __for_3195_start
+__for_3195_end:
+__function_relocate_all_active_asteroids_safely_return:
   mov SP, BP
   pop BP
   ret
@@ -4076,10 +4546,10 @@ __function_int_to_string:
   push BP
   mov BP, SP
   isub SP, 14
-__if_2905_start:
+__if_3274_start:
   mov R0, [BP+2]
   ieq R0, 0
-  jf R0, __if_2905_end
+  jf R0, __if_3274_end
   mov R0, 48
   mov R1, [BP+3]
   mov [R1], R0
@@ -4088,26 +4558,26 @@ __if_2905_start:
   iadd R1, 1
   mov [R1], R0
   jmp __function_int_to_string_return
-__if_2905_end:
+__if_3274_end:
   mov R0, 0
   mov [BP-1], R0
-__if_2924_start:
+__if_3293_start:
   mov R0, [BP+2]
   ilt R0, 0
-  jf R0, __if_2924_end
+  jf R0, __if_3293_end
   mov R0, 1
   mov [BP-1], R0
   mov R0, [BP+2]
   isgn R0
   mov [BP+2], R0
-__if_2924_end:
+__if_3293_end:
   mov R0, 0
   mov [BP-12], R0
-__while_2942_start:
-__while_2942_continue:
+__while_3311_start:
+__while_3311_continue:
   mov R0, [BP+2]
   igt R0, 0
-  jf R0, __while_2942_end
+  jf R0, __while_3311_end
   mov R0, [BP+2]
   imod R0, 10
   iadd R0, 48
@@ -4121,14 +4591,14 @@ __while_2942_continue:
   mov R0, [BP+2]
   idiv R0, 10
   mov [BP+2], R0
-  jmp __while_2942_start
-__while_2942_end:
+  jmp __while_3311_start
+__while_3311_end:
   mov R0, 0
   mov [BP-13], R0
-__if_2964_start:
+__if_3333_start:
   mov R0, [BP-1]
   cib R0
-  jf R0, __if_2964_end
+  jf R0, __if_3333_end
   mov R0, 45
   mov R1, [BP+3]
   mov R2, [BP-13]
@@ -4137,14 +4607,14 @@ __if_2964_start:
   mov [BP-13], R3
   iadd R1, R2
   mov [R1], R0
-__if_2964_end:
+__if_3333_end:
   mov R0, [BP-12]
   isub R0, 1
   mov [BP-14], R0
-__for_2972_start:
+__for_3341_start:
   mov R0, [BP-14]
   ige R0, 0
-  jf R0, __for_2972_end
+  jf R0, __for_3341_end
   lea R0, [BP-11]
   mov R1, [BP-14]
   iadd R0, R1
@@ -4156,13 +4626,13 @@ __for_2972_start:
   mov [BP-13], R3
   iadd R1, R2
   mov [R1], R0
-__for_2972_continue:
+__for_3341_continue:
   mov R0, [BP-14]
   mov R1, R0
   isub R1, 1
   mov [BP-14], R1
-  jmp __for_2972_start
-__for_2972_end:
+  jmp __for_3341_start
+__for_3341_end:
   mov R0, 0
   mov R1, [BP+3]
   mov R2, [BP-13]
@@ -4179,11 +4649,11 @@ __function_fire_projectile:
   isub SP, 2
   mov R0, 0
   mov [BP-1], R0
-__for_3003_start:
+__for_3372_start:
   mov R0, [BP-1]
   ilt R0, 20
-  jf R0, __for_3003_end
-__if_3013_start:
+  jf R0, __for_3372_end
+__if_3382_start:
   mov R1, global_projectiles
   mov R2, [BP-1]
   imul R2, 5
@@ -4191,7 +4661,7 @@ __if_3013_start:
   iadd R1, 4
   mov R0, [R1]
   bnot R0
-  jf R0, __if_3013_end
+  jf R0, __if_3382_end
   mov R1, [BP+2]
   mov R2, [global_projectileOffset]
   mov R4, [BP+4]
@@ -4252,38 +4722,38 @@ __if_3013_start:
   iadd R1, R2
   iadd R1, 4
   mov [R1], R0
-  jmp __for_3003_end
-__if_3013_end:
-__for_3003_continue:
+  jmp __for_3372_end
+__if_3382_end:
+__for_3372_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_3003_start
-__for_3003_end:
+  jmp __for_3372_start
+__for_3372_end:
 __function_fire_projectile_return:
   mov SP, BP
   pop BP
   ret
 
-__function_update_projectiles:
+__function_update_projectiles_state:
   push BP
   mov BP, SP
-  isub SP, 5
+  isub SP, 1
   mov R0, 0
   mov [BP-1], R0
-__for_3068_start:
+__for_3437_start:
   mov R0, [BP-1]
   ilt R0, 20
-  jf R0, __for_3068_end
-__if_3078_start:
+  jf R0, __for_3437_end
+__if_3447_start:
   mov R1, global_projectiles
   mov R2, [BP-1]
   imul R2, 5
   iadd R1, R2
   iadd R1, 4
   mov R0, [R1]
-  jf R0, __if_3078_end
+  jf R0, __if_3447_end
   mov R1, global_projectiles
   mov R2, [BP-1]
   imul R2, 5
@@ -4320,14 +4790,14 @@ __if_3078_start:
   iadd R1, R2
   iadd R1, 1
   mov [R1], R0
-__if_3102_start:
+__if_3471_start:
   mov R1, global_projectiles
   mov R2, [BP-1]
   imul R2, 5
   iadd R1, R2
   mov R0, [R1]
   flt R0, 0.000000
-  jt R0, __LogicalOr_ShortCircuit_3113
+  jt R0, __LogicalOr_ShortCircuit_3482
   mov R2, global_projectiles
   mov R3, [BP-1]
   imul R3, 5
@@ -4335,8 +4805,8 @@ __if_3102_start:
   mov R1, [R2]
   fge R1, 640.000000
   or R0, R1
-__LogicalOr_ShortCircuit_3113:
-  jt R0, __LogicalOr_ShortCircuit_3120
+__LogicalOr_ShortCircuit_3482:
+  jt R0, __LogicalOr_ShortCircuit_3489
   mov R2, global_projectiles
   mov R3, [BP-1]
   imul R3, 5
@@ -4345,8 +4815,8 @@ __LogicalOr_ShortCircuit_3113:
   mov R1, [R2]
   flt R1, 0.000000
   or R0, R1
-__LogicalOr_ShortCircuit_3120:
-  jt R0, __LogicalOr_ShortCircuit_3127
+__LogicalOr_ShortCircuit_3489:
+  jt R0, __LogicalOr_ShortCircuit_3496
   mov R2, global_projectiles
   mov R3, [BP-1]
   imul R3, 5
@@ -4355,8 +4825,8 @@ __LogicalOr_ShortCircuit_3120:
   mov R1, [R2]
   fge R1, 360.000000
   or R0, R1
-__LogicalOr_ShortCircuit_3127:
-  jf R0, __if_3102_end
+__LogicalOr_ShortCircuit_3496:
+  jf R0, __if_3471_end
   mov R0, 0
   mov R1, global_projectiles
   mov R2, [BP-1]
@@ -4364,7 +4834,38 @@ __LogicalOr_ShortCircuit_3127:
   iadd R1, R2
   iadd R1, 4
   mov [R1], R0
-__if_3102_end:
+__if_3471_end:
+__if_3447_end:
+__for_3437_continue:
+  mov R0, [BP-1]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-1], R1
+  jmp __for_3437_start
+__for_3437_end:
+__function_update_projectiles_state_return:
+  mov SP, BP
+  pop BP
+  ret
+
+__function_draw_projectiles:
+  push BP
+  mov BP, SP
+  isub SP, 5
+  mov R0, 0
+  mov [BP-1], R0
+__for_3507_start:
+  mov R0, [BP-1]
+  ilt R0, 20
+  jf R0, __for_3507_end
+__if_3517_start:
+  mov R1, global_projectiles
+  mov R2, [BP-1]
+  imul R2, 5
+  iadd R1, R2
+  iadd R1, 4
+  mov R0, [R1]
+  jf R0, __if_3517_end
   mov R2, global_projectiles
   mov R3, [BP-1]
   imul R3, 5
@@ -4410,14 +4911,171 @@ __if_3102_end:
   cfi R1
   mov [SP+3], R1
   call __function_draw_line
-__if_3078_end:
-__for_3068_continue:
+__if_3517_end:
+__for_3507_continue:
   mov R0, [BP-1]
   mov R1, R0
   iadd R1, 1
   mov [BP-1], R1
-  jmp __for_3068_start
-__for_3068_end:
+  jmp __for_3507_start
+__for_3507_end:
+__function_draw_projectiles_return:
+  mov SP, BP
+  pop BP
+  ret
+
+__function_update_projectiles:
+  push BP
+  mov BP, SP
+  isub SP, 5
+  mov R0, 0
+  mov [BP-1], R0
+__for_3557_start:
+  mov R0, [BP-1]
+  ilt R0, 20
+  jf R0, __for_3557_end
+__if_3567_start:
+  mov R1, global_projectiles
+  mov R2, [BP-1]
+  imul R2, 5
+  iadd R1, R2
+  iadd R1, 4
+  mov R0, [R1]
+  jf R0, __if_3567_end
+  mov R1, global_projectiles
+  mov R2, [BP-1]
+  imul R2, 5
+  iadd R1, R2
+  mov R0, [R1]
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  iadd R2, 2
+  mov R1, [R2]
+  fadd R0, R1
+  mov R1, global_projectiles
+  mov R2, [BP-1]
+  imul R2, 5
+  iadd R1, R2
+  mov [R1], R0
+  mov R1, global_projectiles
+  mov R2, [BP-1]
+  imul R2, 5
+  iadd R1, R2
+  iadd R1, 1
+  mov R0, [R1]
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  iadd R2, 3
+  mov R1, [R2]
+  fadd R0, R1
+  mov R1, global_projectiles
+  mov R2, [BP-1]
+  imul R2, 5
+  iadd R1, R2
+  iadd R1, 1
+  mov [R1], R0
+__if_3591_start:
+  mov R1, global_projectiles
+  mov R2, [BP-1]
+  imul R2, 5
+  iadd R1, R2
+  mov R0, [R1]
+  flt R0, 0.000000
+  jt R0, __LogicalOr_ShortCircuit_3602
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  mov R1, [R2]
+  fge R1, 640.000000
+  or R0, R1
+__LogicalOr_ShortCircuit_3602:
+  jt R0, __LogicalOr_ShortCircuit_3609
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  iadd R2, 1
+  mov R1, [R2]
+  flt R1, 0.000000
+  or R0, R1
+__LogicalOr_ShortCircuit_3609:
+  jt R0, __LogicalOr_ShortCircuit_3616
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  iadd R2, 1
+  mov R1, [R2]
+  fge R1, 360.000000
+  or R0, R1
+__LogicalOr_ShortCircuit_3616:
+  jf R0, __if_3591_end
+  mov R0, 0
+  mov R1, global_projectiles
+  mov R2, [BP-1]
+  imul R2, 5
+  iadd R1, R2
+  iadd R1, 4
+  mov [R1], R0
+__if_3591_end:
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  mov R1, [R2]
+  cfi R1
+  mov [SP], R1
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  iadd R2, 1
+  mov R1, [R2]
+  cfi R1
+  mov [SP+1], R1
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  mov R1, [R2]
+  mov R3, global_projectiles
+  mov R4, [BP-1]
+  imul R4, 5
+  iadd R3, R4
+  iadd R3, 2
+  mov R2, [R3]
+  fsub R1, R2
+  cfi R1
+  mov [SP+2], R1
+  mov R2, global_projectiles
+  mov R3, [BP-1]
+  imul R3, 5
+  iadd R2, R3
+  iadd R2, 1
+  mov R1, [R2]
+  mov R3, global_projectiles
+  mov R4, [BP-1]
+  imul R4, 5
+  iadd R3, R4
+  iadd R3, 3
+  mov R2, [R3]
+  fsub R1, R2
+  cfi R1
+  mov [SP+3], R1
+  call __function_draw_line
+__if_3567_end:
+__for_3557_continue:
+  mov R0, [BP-1]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-1], R1
+  jmp __for_3557_start
+__for_3557_end:
 __function_update_projectiles_return:
   mov SP, BP
   pop BP
@@ -4565,9 +5223,9 @@ __function_draw_ship:
   mov R1, [BP-6]
   mov [SP+3], R1
   call __function_draw_line
-__if_3273_start:
+__if_3762_start:
   mov R0, [BP+5]
-  jf R0, __if_3273_end
+  jf R0, __if_3762_end
   mov R1, [BP-7]
   cif R1
   mov R2, [BP-4]
@@ -4599,37 +5257,37 @@ __if_3273_start:
   mov R0, [BP+6]
   mov R1, 0
   ieq R1, R0
-  jt R1, __switch_3299_case_0
+  jt R1, __switch_3788_case_0
   mov R1, 1
   ieq R1, R0
-  jt R1, __switch_3299_case_1
+  jt R1, __switch_3788_case_1
   mov R1, 2
   ieq R1, R0
-  jt R1, __switch_3299_case_2
+  jt R1, __switch_3788_case_2
   mov R1, 3
   ieq R1, R0
-  jt R1, __switch_3299_case_3
-  jmp __switch_3299_default
-__switch_3299_case_0:
+  jt R1, __switch_3788_case_3
+  jmp __switch_3788_default
+__switch_3788_case_0:
   mov R0, 3
   mov [BP-16], R0
-  jmp __switch_3299_end
-__switch_3299_case_1:
+  jmp __switch_3788_end
+__switch_3788_case_1:
   mov R0, 5
   mov [BP-16], R0
-  jmp __switch_3299_end
-__switch_3299_case_2:
+  jmp __switch_3788_end
+__switch_3788_case_2:
   mov R0, 4
   mov [BP-16], R0
-  jmp __switch_3299_end
-__switch_3299_case_3:
+  jmp __switch_3788_end
+__switch_3788_case_3:
   mov R0, 6
   mov [BP-16], R0
-  jmp __switch_3299_end
-__switch_3299_default:
+  jmp __switch_3788_end
+__switch_3788_default:
   mov R0, 4
   mov [BP-16], R0
-__switch_3299_end:
+__switch_3788_end:
   mov R1, [BP-13]
   cif R1
   mov R2, [BP-16]
@@ -4708,8 +5366,231 @@ __switch_3299_end:
   mov R1, [BP-20]
   mov [SP+3], R1
   call __function_draw_line
-__if_3273_end:
+__if_3762_end:
 __function_draw_ship_return:
+  mov SP, BP
+  pop BP
+  ret
+
+__function_spawn_new_big_asteroid_offscreen:
+  push BP
+  mov BP, SP
+  isub SP, 10
+  mov R0, 0
+  mov [BP-1], R0
+  mov R0, 0
+  mov [BP-2], R0
+__for_3873_start:
+  mov R0, [BP-2]
+  ilt R0, 5
+  jf R0, __for_3873_end
+__if_3883_start:
+  mov R1, global_bigAsteroids
+  mov R2, [BP-2]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 5
+  mov R0, [R1]
+  jf R0, __if_3883_end
+  mov R0, [BP-1]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-1], R1
+__if_3883_end:
+__for_3873_continue:
+  mov R0, [BP-2]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-2], R1
+  jmp __for_3873_start
+__for_3873_end:
+__if_3891_start:
+  mov R0, [BP-1]
+  mov R1, [global_MAX_CONCURRENT_BIG_ASTEROIDS]
+  ige R0, R1
+  jf R0, __if_3891_end
+  jmp __function_spawn_new_big_asteroid_offscreen_return
+__if_3891_end:
+  mov R0, 0
+  mov [BP-2], R0
+__for_3897_start:
+  mov R0, [BP-2]
+  ilt R0, 5
+  jf R0, __for_3897_end
+__if_3907_start:
+  mov R1, global_bigAsteroids
+  mov R2, [BP-2]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 5
+  mov R0, [R1]
+  bnot R0
+  jf R0, __if_3907_end
+  mov R1, global_bigAsteroids
+  mov R2, [BP-2]
+  imul R2, 7
+  iadd R1, R2
+  mov [SP], R1
+  mov R1, 2
+  mov [SP+1], R1
+  call __function_init_asteroid
+  call __function_rand
+  mov R1, R0
+  imod R1, 4
+  mov R0, R1
+  mov [BP-3], R0
+  call __function_rand
+  mov R1, R0
+  imod R1, 101
+  cif R1
+  fdiv R1, 100.000000
+  fadd R1, 1.000000
+  mov R0, R1
+  mov [BP-8], R0
+__if_3942_start:
+  mov R0, [BP-3]
+  ieq R0, 0
+  jf R0, __if_3942_else
+  call __function_rand
+  mov R1, R0
+  imod R1, 640
+  cif R1
+  mov [BP-4], R1
+  mov R0, R1
+  mov R0, -30.000000
+  mov [BP-5], R0
+  call __function_rand
+  mov R1, R0
+  imod R1, 201
+  cif R1
+  fdiv R1, 100.000000
+  fsub R1, 1.000000
+  mov R2, [BP-8]
+  fmul R1, R2
+  fmul R1, 0.500000
+  mov [BP-6], R1
+  mov R0, R1
+  mov R0, [BP-8]
+  mov [BP-7], R0
+  jmp __if_3942_end
+__if_3942_else:
+__if_3977_start:
+  mov R0, [BP-3]
+  ieq R0, 1
+  jf R0, __if_3977_else
+  call __function_rand
+  mov R1, R0
+  imod R1, 640
+  cif R1
+  mov [BP-4], R1
+  mov R0, R1
+  mov R0, 390.000000
+  mov [BP-5], R0
+  call __function_rand
+  mov R1, R0
+  imod R1, 201
+  cif R1
+  fdiv R1, 100.000000
+  fsub R1, 1.000000
+  mov R2, [BP-8]
+  fmul R1, R2
+  fmul R1, 0.500000
+  mov [BP-6], R1
+  mov R0, R1
+  mov R0, [BP-8]
+  fsgn R0
+  mov [BP-7], R0
+  jmp __if_3977_end
+__if_3977_else:
+__if_4014_start:
+  mov R0, [BP-3]
+  ieq R0, 2
+  jf R0, __if_4014_else
+  mov R0, -30.000000
+  mov [BP-4], R0
+  call __function_rand
+  mov R1, R0
+  imod R1, 360
+  cif R1
+  mov [BP-5], R1
+  mov R0, R1
+  mov R0, [BP-8]
+  mov [BP-6], R0
+  call __function_rand
+  mov R1, R0
+  imod R1, 201
+  cif R1
+  fdiv R1, 100.000000
+  fsub R1, 1.000000
+  mov R2, [BP-8]
+  fmul R1, R2
+  fmul R1, 0.500000
+  mov [BP-7], R1
+  mov R0, R1
+  jmp __if_4014_end
+__if_4014_else:
+  mov R0, 670.000000
+  mov [BP-4], R0
+  call __function_rand
+  mov R1, R0
+  imod R1, 360
+  cif R1
+  mov [BP-5], R1
+  mov R0, R1
+  mov R0, [BP-8]
+  fsgn R0
+  mov [BP-6], R0
+  call __function_rand
+  mov R1, R0
+  imod R1, 201
+  cif R1
+  fdiv R1, 100.000000
+  fsub R1, 1.000000
+  mov R2, [BP-8]
+  fmul R1, R2
+  fmul R1, 0.500000
+  mov [BP-7], R1
+  mov R0, R1
+__if_4014_end:
+__if_3977_end:
+__if_3942_end:
+  mov R0, [BP-4]
+  mov R1, global_bigAsteroids
+  mov R2, [BP-2]
+  imul R2, 7
+  iadd R1, R2
+  mov [R1], R0
+  mov R0, [BP-5]
+  mov R1, global_bigAsteroids
+  mov R2, [BP-2]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 1
+  mov [R1], R0
+  mov R0, [BP-6]
+  mov R1, global_bigAsteroids
+  mov R2, [BP-2]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 2
+  mov [R1], R0
+  mov R0, [BP-7]
+  mov R1, global_bigAsteroids
+  mov R2, [BP-2]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 3
+  mov [R1], R0
+  jmp __for_3897_end
+__if_3907_end:
+__for_3897_continue:
+  mov R0, [BP-2]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-2], R1
+  jmp __for_3897_start
+__for_3897_end:
+__function_spawn_new_big_asteroid_offscreen_return:
   mov SP, BP
   pop BP
   ret
@@ -4717,7 +5598,13 @@ __function_draw_ship_return:
 __function_main:
   push BP
   mov BP, SP
-  isub SP, 17
+  isub SP, 18
+  mov R0, 0
+  mov [global_score], R0
+  mov R0, 3
+  mov [global_lives], R0
+  mov R0, 1
+  mov [global_isAlive], R0
   mov R0, 320.000000
   mov [BP-5], R0
   mov R0, 180.000000
@@ -4728,11 +5615,11 @@ __function_main:
   mov [BP-2], R0
   mov R0, 0.000000
   mov [BP-1], R0
-  mov R0, 3.000000
+  mov R0, 4.000000
   mov [BP-6], R0
-  mov R0, 1.000000
+  mov R0, 3.000000
   mov [BP-7], R0
-  mov R0, 0.980000
+  mov R0, 0.985000
   mov [BP-8], R0
   mov R0, 0.016667
   mov [BP-9], R0
@@ -4742,10 +5629,10 @@ __function_main:
   mov [BP-11], R0
   mov R0, 0
   mov [BP-12], R0
-__for_3413_start:
+__for_4149_start:
   mov R0, [BP-12]
-  ilt R0, 1
-  jf R0, __for_3413_end
+  ilt R0, 5
+  jf R0, __for_4149_end
   mov R1, global_bigAsteroids
   mov R2, [BP-12]
   imul R2, 7
@@ -4754,54 +5641,60 @@ __for_3413_start:
   mov R1, 2
   mov [SP+1], R1
   call __function_init_asteroid
-__for_3413_continue:
+__for_4149_continue:
   mov R0, [BP-12]
   mov R1, R0
   iadd R1, 1
   mov [BP-12], R1
-  jmp __for_3413_start
-__for_3413_end:
-__while_3429_start:
-__while_3429_continue:
+  jmp __for_4149_start
+__for_4149_end:
+  lea R1, [BP-5]
+  mov [SP], R1
+  call __function_relocate_all_active_asteroids_safely
+__while_4168_start:
+__while_4168_continue:
   mov R0, 1
-  jf R0, __while_3429_end
+  jf R0, __while_4168_end
   mov R1, -16777216
   mov [SP], R1
   call __function_clear_screen
+__if_4173_start:
+  mov R0, [global_isAlive]
+  jf R0, __if_4173_else
   mov R0, 0
   mov [BP-10], R0
-__if_3437_start:
+__if_4179_start:
   call __function_gamepad_left
   mov R1, R0
   igt R1, 0
   mov R0, R1
-  jf R0, __if_3437_end
+  jf R0, __if_4179_end
   mov R0, [BP-3]
   mov R1, [BP-6]
   mov R2, [BP-9]
   fmul R1, R2
   fsub R0, R1
   mov [BP-3], R0
-__if_3437_end:
-__if_3448_start:
+__if_4179_end:
+__if_4190_start:
   call __function_gamepad_right
   mov R1, R0
   igt R1, 0
   mov R0, R1
-  jf R0, __if_3448_end
+  jf R0, __if_4190_end
   mov R0, [BP-3]
   mov R1, [BP-6]
   mov R2, [BP-9]
   fmul R1, R2
   fadd R0, R1
   mov [BP-3], R0
-__if_3448_end:
-__if_3459_start:
+__if_4190_end:
+__if_4201_start:
   call __function_gamepad_button_a
   mov R1, R0
   igt R1, 0
   mov R0, R1
-  jf R0, __if_3459_end
+  jf R0, __if_4201_end
   mov R1, [BP-2]
   mov R2, [BP-7]
   mov R4, [BP-3]
@@ -4828,13 +5721,13 @@ __if_3459_start:
   mov R0, R1
   mov R0, 1
   mov [BP-10], R0
-__if_3459_end:
-__if_3489_start:
+__if_4201_end:
+__if_4231_start:
   call __function_gamepad_button_b
   mov R1, R0
   ieq R1, 1
   mov R0, R1
-  jf R0, __if_3489_end
+  jf R0, __if_4231_end
   mov R1, [BP-5]
   mov [SP], R1
   mov R1, [BP-4]
@@ -4842,7 +5735,7 @@ __if_3489_start:
   mov R1, [BP-3]
   mov [SP+2], R1
   call __function_fire_projectile
-__if_3489_end:
+__if_4231_end:
   mov R0, [BP-5]
   mov R1, [BP-2]
   fadd R0, R1
@@ -4859,117 +5752,295 @@ __if_3489_end:
   mov R1, [BP-8]
   fmul R0, R1
   mov [BP-1], R0
-__if_3519_start:
+__if_4261_start:
   mov R0, [BP-5]
   flt R0, 0.000000
-  jf R0, __if_3519_end
+  jf R0, __if_4261_end
   mov R0, [BP-5]
   fadd R0, 640.000000
   mov [BP-5], R0
-__if_3519_end:
-__if_3528_start:
+__if_4261_end:
+__if_4270_start:
   mov R0, [BP-5]
   fge R0, 640.000000
-  jf R0, __if_3528_end
+  jf R0, __if_4270_end
   mov R0, [BP-5]
   fsub R0, 640.000000
   mov [BP-5], R0
-__if_3528_end:
-__if_3537_start:
+__if_4270_end:
+__if_4279_start:
   mov R0, [BP-4]
   flt R0, 0.000000
-  jf R0, __if_3537_end
+  jf R0, __if_4279_end
   mov R0, [BP-4]
   fadd R0, 360.000000
   mov [BP-4], R0
-__if_3537_end:
-__if_3546_start:
+__if_4279_end:
+__if_4288_start:
   mov R0, [BP-4]
   fge R0, 360.000000
-  jf R0, __if_3546_end
+  jf R0, __if_4288_end
   mov R0, [BP-4]
   fsub R0, 360.000000
   mov [BP-4], R0
-__if_3546_end:
+__if_4288_end:
+  mov R0, [global_bigAsteroidSpawnTimer]
+  mov R1, R0
+  iadd R1, 1
+  mov [global_bigAsteroidSpawnTimer], R1
+__if_4299_start:
+  mov R0, [global_bigAsteroidSpawnTimer]
+  mov R1, [global_BIG_ASTEROID_SPAWN_INTERVAL]
+  ige R0, R1
+  jf R0, __if_4299_end
   mov R0, 0
-  mov [BP-12], R0
-__for_3555_start:
-  mov R0, [BP-12]
-  ilt R0, 1
-  jf R0, __for_3555_end
+  mov [global_bigAsteroidSpawnTimer], R0
+  call __function_spawn_new_big_asteroid_offscreen
+__if_4299_end:
+  mov R0, 0
+  mov [BP-13], R0
+__for_4308_start:
+  mov R0, [BP-13]
+  ilt R0, 5
+  jf R0, __for_4308_end
   mov R1, global_bigAsteroids
-  mov R2, [BP-12]
+  mov R2, [BP-13]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
   call __function_update_asteroid
-  mov R1, global_bigAsteroids
-  mov R2, [BP-12]
-  imul R2, 7
-  iadd R1, R2
-  mov [SP], R1
-  call __function_draw_asteroid
-__for_3555_continue:
-  mov R0, [BP-12]
+__for_4308_continue:
+  mov R0, [BP-13]
   mov R1, R0
   iadd R1, 1
-  mov [BP-12], R1
-  jmp __for_3555_start
-__for_3555_end:
+  mov [BP-13], R1
+  jmp __for_4308_start
+__for_4308_end:
   mov R0, 0
-  mov [BP-12], R0
-__for_3575_start:
-  mov R0, [BP-12]
+  mov [BP-13], R0
+__for_4322_start:
+  mov R0, [BP-13]
   ilt R0, 20
-  jf R0, __for_3575_end
+  jf R0, __for_4322_end
   mov R1, global_mediumAsteroids
-  mov R2, [BP-12]
+  mov R2, [BP-13]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
   call __function_update_asteroid
-  mov R1, global_mediumAsteroids
-  mov R2, [BP-12]
+__for_4322_continue:
+  mov R0, [BP-13]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-13], R1
+  jmp __for_4322_start
+__for_4322_end:
+  mov R0, 0
+  mov [BP-13], R0
+__for_4336_start:
+  mov R0, [BP-13]
+  ilt R0, 40
+  jf R0, __for_4336_end
+  mov R1, global_smallAsteroids
+  mov R2, [BP-13]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
-  call __function_draw_asteroid
-__for_3575_continue:
-  mov R0, [BP-12]
+  call __function_update_asteroid
+__for_4336_continue:
+  mov R0, [BP-13]
   mov R1, R0
   iadd R1, 1
-  mov [BP-12], R1
-  jmp __for_3575_start
-__for_3575_end:
+  mov [BP-13], R1
+  jmp __for_4336_start
+__for_4336_end:
+  call __function_update_projectiles_state
+  call __function_update_bullets_and_asteroids
   mov R0, 0
   mov [BP-12], R0
-__for_3595_start:
-  mov R0, [BP-12]
-  ilt R0, 40
-  jf R0, __for_3595_end
-  mov R1, global_smallAsteroids
-  mov R2, [BP-12]
+  mov R0, 0
+  mov [BP-13], R0
+__for_4355_start:
+  mov R0, [BP-13]
+  ilt R0, 5
+  jf R0, __for_4355_end
+__if_4365_start:
+  mov R2, global_bigAsteroids
+  mov R3, [BP-13]
+  imul R3, 7
+  iadd R2, R3
+  iadd R2, 5
+  mov R1, [R2]
+  jf R1, __LogicalAnd_ShortCircuit_4370
+  lea R3, [BP-5]
+  mov [SP], R3
+  mov R3, global_bigAsteroids
+  mov R4, [BP-13]
+  imul R4, 7
+  iadd R3, R4
+  mov [SP+1], R3
+  call __function_check_ship_asteroid_collision
+  mov R2, R0
+  and R1, R2
+__LogicalAnd_ShortCircuit_4370:
+  mov R0, R1
+  jf R0, __if_4365_end
+  mov R0, [global_lives]
+  mov R1, R0
+  isub R1, 1
+  mov [global_lives], R1
+  mov R1, global_bigAsteroids
+  mov R2, [BP-13]
   imul R2, 7
   iadd R1, R2
   mov [SP], R1
-  call __function_update_asteroid
-  mov R1, global_smallAsteroids
-  mov R2, [BP-12]
-  imul R2, 7
-  iadd R1, R2
-  mov [SP], R1
-  call __function_draw_asteroid
-__for_3595_continue:
-  mov R0, [BP-12]
+  call __function_destroy_asteroid
+  mov R0, 1
+  mov [BP-12], R0
+  jmp __for_4355_end
+__if_4365_end:
+__for_4355_continue:
+  mov R0, [BP-13]
   mov R1, R0
   iadd R1, 1
-  mov [BP-12], R1
-  jmp __for_3595_start
-__for_3595_end:
+  mov [BP-13], R1
+  jmp __for_4355_start
+__for_4355_end:
+__if_4390_start:
+  mov R0, [BP-12]
+  bnot R0
+  jf R0, __if_4390_end
+  mov R0, 0
+  mov [BP-13], R0
+__for_4394_start:
+  mov R0, [BP-13]
+  ilt R0, 20
+  jf R0, __for_4394_end
+__if_4404_start:
+  mov R2, global_mediumAsteroids
+  mov R3, [BP-13]
+  imul R3, 7
+  iadd R2, R3
+  iadd R2, 5
+  mov R1, [R2]
+  jf R1, __LogicalAnd_ShortCircuit_4409
+  lea R3, [BP-5]
+  mov [SP], R3
+  mov R3, global_mediumAsteroids
+  mov R4, [BP-13]
+  imul R4, 7
+  iadd R3, R4
+  mov [SP+1], R3
+  call __function_check_ship_asteroid_collision
+  mov R2, R0
+  and R1, R2
+__LogicalAnd_ShortCircuit_4409:
+  mov R0, R1
+  jf R0, __if_4404_end
+  mov R0, [global_lives]
+  mov R1, R0
+  isub R1, 1
+  mov [global_lives], R1
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-13]
+  imul R2, 7
+  iadd R1, R2
+  mov [SP], R1
+  call __function_destroy_asteroid
+  mov R0, 1
+  mov [BP-12], R0
+  jmp __for_4394_end
+__if_4404_end:
+__for_4394_continue:
+  mov R0, [BP-13]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-13], R1
+  jmp __for_4394_start
+__for_4394_end:
+__if_4390_end:
+__if_4429_start:
+  mov R0, [BP-12]
+  bnot R0
+  jf R0, __if_4429_end
+  mov R0, 0
+  mov [BP-13], R0
+__for_4433_start:
+  mov R0, [BP-13]
+  ilt R0, 40
+  jf R0, __for_4433_end
+__if_4443_start:
+  mov R2, global_smallAsteroids
+  mov R3, [BP-13]
+  imul R3, 7
+  iadd R2, R3
+  iadd R2, 5
+  mov R1, [R2]
+  jf R1, __LogicalAnd_ShortCircuit_4448
+  lea R3, [BP-5]
+  mov [SP], R3
+  mov R3, global_smallAsteroids
+  mov R4, [BP-13]
+  imul R4, 7
+  iadd R3, R4
+  mov [SP+1], R3
+  call __function_check_ship_asteroid_collision
+  mov R2, R0
+  and R1, R2
+__LogicalAnd_ShortCircuit_4448:
+  mov R0, R1
+  jf R0, __if_4443_end
+  mov R0, [global_lives]
+  mov R1, R0
+  isub R1, 1
+  mov [global_lives], R1
+  mov R1, global_smallAsteroids
+  mov R2, [BP-13]
+  imul R2, 7
+  iadd R1, R2
+  mov [SP], R1
+  call __function_destroy_asteroid
+  mov R0, 1
+  mov [BP-12], R0
+  jmp __for_4433_end
+__if_4443_end:
+__for_4433_continue:
+  mov R0, [BP-13]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-13], R1
+  jmp __for_4433_start
+__for_4433_end:
+__if_4429_end:
+__if_4468_start:
+  mov R0, [BP-12]
+  jf R0, __if_4468_end
+  mov R0, 320.000000
+  mov [BP-5], R0
+  mov R0, 180.000000
+  mov [BP-4], R0
+  mov R0, 0.000000
+  mov [BP-2], R0
+  mov R0, 0.000000
+  mov [BP-1], R0
+  mov R0, 0.000000
+  mov [BP-3], R0
+  lea R1, [BP-5]
+  mov [SP], R1
+  call __function_relocate_all_active_asteroids_safely
+__if_4498_start:
+  mov R0, [global_lives]
+  ile R0, 0
+  jf R0, __if_4498_end
+  mov R0, 0
+  mov [global_isAlive], R0
+__if_4498_end:
+__if_4468_end:
   mov R0, [BP-11]
   iadd R0, 1
   imod R0, 4
   mov [BP-11], R0
+  call __function_draw_asteroids
   mov R1, [BP-5]
   cfi R1
   mov [SP], R1
@@ -4983,13 +6054,294 @@ __for_3595_end:
   mov R1, [BP-11]
   mov [SP+4], R1
   call __function_draw_ship
-  call __function_update_projectiles
-  call __function_update_bullets_and_asteroids
+  call __function_draw_projectiles
+  mov R1, [global_score]
+  mov [SP], R1
+  mov R1, global_numberBuffer
+  mov [SP+1], R1
+  call __function_int_to_string
+  mov R1, 10
+  mov [SP], R1
+  mov R1, 10
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4534
+  mov [SP], R1
+  call __function_print
+  mov R1, 70
+  mov [SP], R1
+  mov R1, 10
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, global_numberBuffer
+  mov [SP], R1
+  call __function_print
+  mov R1, 10
+  mov [SP], R1
+  mov R1, 30
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4544
+  mov [SP], R1
+  call __function_print
+__if_4545_start:
+  mov R0, [global_lives]
+  ieq R0, 3
+  jf R0, __if_4545_end
+  mov R1, 70
+  mov [SP], R1
+  mov R1, 30
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4554
+  mov [SP], R1
+  call __function_print
+__if_4545_end:
+__if_4555_start:
+  mov R0, [global_lives]
+  ieq R0, 2
+  jf R0, __if_4555_end
+  mov R1, 70
+  mov [SP], R1
+  mov R1, 30
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4564
+  mov [SP], R1
+  call __function_print
+__if_4555_end:
+__if_4565_start:
+  mov R0, [global_lives]
+  ieq R0, 1
+  jf R0, __if_4565_end
+  mov R1, 70
+  mov [SP], R1
+  mov R1, 30
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4574
+  mov [SP], R1
+  call __function_print
+__if_4565_end:
+  jmp __if_4173_end
+__if_4173_else:
+__if_4576_start:
+  mov R0, [global_score]
+  mov R1, [global_maxScore]
+  igt R0, R1
+  jf R0, __if_4576_end
+  mov R0, [global_score]
+  mov [global_maxScore], R0
+__if_4576_end:
+  mov R1, 270
+  mov [SP], R1
+  mov R1, 170
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4596
+  mov [SP], R1
+  call __function_print
+  mov R1, [global_score]
+  mov [SP], R1
+  mov R1, global_numberBuffer
+  mov [SP+1], R1
+  call __function_int_to_string
+  mov R1, 250
+  mov [SP], R1
+  mov R1, 190
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4612
+  mov [SP], R1
+  call __function_print
+  mov R1, 380
+  mov [SP], R1
+  mov R1, 190
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, global_numberBuffer
+  mov [SP], R1
+  call __function_print
+  mov R1, [global_maxScore]
+  mov [SP], R1
+  mov R1, global_numberBuffer
+  mov [SP+1], R1
+  call __function_int_to_string
+  mov R1, 250
+  mov [SP], R1
+  mov R1, 210
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4641
+  mov [SP], R1
+  call __function_print
+  mov R1, 380
+  mov [SP], R1
+  mov R1, 210
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, global_numberBuffer
+  mov [SP], R1
+  call __function_print
+  mov R1, 230
+  mov [SP], R1
+  mov R1, 240
+  mov [SP+1], R1
+  call __function_set_drawing_point
+  mov R1, __literal_string_4667
+  mov [SP], R1
+  call __function_print
+__if_4668_start:
+  call __function_gamepad_button_a
+  mov R1, R0
+  ieq R1, 1
+  mov R0, R1
+  jf R0, __if_4668_end
+  mov R0, 0
+  mov [global_score], R0
+  mov R0, 3
+  mov [global_lives], R0
+  mov R0, 1
+  mov [global_isAlive], R0
+  mov R0, 320.000000
+  mov [BP-5], R0
+  mov R0, 180.000000
+  mov [BP-4], R0
+  mov R0, 0.000000
+  mov [BP-2], R0
+  mov R0, 0.000000
+  mov [BP-1], R0
+  mov R0, 0.000000
+  mov [BP-3], R0
+  mov R0, 0
+  mov [BP-12], R0
+__for_4706_start:
+  mov R0, [BP-12]
+  ilt R0, 20
+  jf R0, __for_4706_end
+  mov R0, 0
+  mov R1, global_projectiles
+  mov R2, [BP-12]
+  imul R2, 5
+  iadd R1, R2
+  iadd R1, 4
+  mov [R1], R0
+__for_4706_continue:
+  mov R0, [BP-12]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-12], R1
+  jmp __for_4706_start
+__for_4706_end:
+  mov R0, 0
+  mov [BP-12], R0
+__for_4721_start:
+  mov R0, [BP-12]
+  ilt R0, 5
+  jf R0, __for_4721_end
+  mov R0, 0
+  mov R1, global_bigAsteroids
+  mov R2, [BP-12]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 5
+  mov [R1], R0
+__for_4721_continue:
+  mov R0, [BP-12]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-12], R1
+  jmp __for_4721_start
+__for_4721_end:
+  mov R0, 0
+  mov [BP-12], R0
+__for_4736_start:
+  mov R0, [BP-12]
+  ilt R0, 20
+  jf R0, __for_4736_end
+  mov R0, 0
+  mov R1, global_mediumAsteroids
+  mov R2, [BP-12]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 5
+  mov [R1], R0
+__for_4736_continue:
+  mov R0, [BP-12]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-12], R1
+  jmp __for_4736_start
+__for_4736_end:
+  mov R0, 0
+  mov [BP-12], R0
+__for_4751_start:
+  mov R0, [BP-12]
+  ilt R0, 40
+  jf R0, __for_4751_end
+  mov R0, 0
+  mov R1, global_smallAsteroids
+  mov R2, [BP-12]
+  imul R2, 7
+  iadd R1, R2
+  iadd R1, 5
+  mov [R1], R0
+__for_4751_continue:
+  mov R0, [BP-12]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-12], R1
+  jmp __for_4751_start
+__for_4751_end:
+  mov R0, 0
+  mov [BP-12], R0
+__for_4766_start:
+  mov R0, [BP-12]
+  ilt R0, 5
+  jf R0, __for_4766_end
+  mov R1, global_bigAsteroids
+  mov R2, [BP-12]
+  imul R2, 7
+  iadd R1, R2
+  mov [SP], R1
+  mov R1, 2
+  mov [SP+1], R1
+  call __function_init_asteroid
+__for_4766_continue:
+  mov R0, [BP-12]
+  mov R1, R0
+  iadd R1, 1
+  mov [BP-12], R1
+  jmp __for_4766_start
+__for_4766_end:
+  lea R1, [BP-5]
+  mov [SP], R1
+  call __function_relocate_all_active_asteroids_safely
+__if_4668_end:
+__if_4173_end:
   call __function_end_frame
-  jmp __while_3429_start
-__while_3429_end:
+  jmp __while_4168_start
+__while_4168_end:
 __function_main_return:
   mov SP, BP
   pop BP
   ret
 
+__literal_string_4534:
+  string "Score:"
+__literal_string_4544:
+  string "Life:"
+__literal_string_4554:
+  string "V V V"
+__literal_string_4564:
+  string "V V"
+__literal_string_4574:
+  string "V"
+__literal_string_4596:
+  string "GAME OVER"
+__literal_string_4612:
+  string "Final Score:"
+__literal_string_4641:
+  string "Highscore:"
+__literal_string_4667:
+  string "Press A to restart"

@@ -10,6 +10,18 @@
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 360
 
+#define SHIP_COLLISION_RADIUS 10
+#define MIN_ASTEROID_RESPAWN_DISTANCE_FROM_SHIP 100.0
+
+float ASTEROID_RADIUS_BIG = 15.0;    // For shapeType 0, 1
+float ASTEROID_RADIUS_MEDIUM = 10.0; // For shapeType 2, 3
+float ASTEROID_RADIUS_SMALL = 5.0;  // For shapeType 4
+
+int score = 0;
+int maxScore = 0;
+int lives = 3;
+bool isAlive = true;
+int[12] numberBuffer; 
 
 struct Ship
 {
@@ -43,11 +55,11 @@ struct Asteroid
 
 // Shape definitions (manual vertices for 5 asteroid shapes)
 int[NUM_ASTEROID_SHAPES][12][2] asteroidShapes = {
-    { { -3, 10 }, { 3, 10 }, { 3, 3 }, { 10, 3 }, { 10, -3 }, { 3, -3 }, { -3, -3 }, { -10, -3 } } , // Square-like
-    {{-10, 10}, {-10, 40}, {10, 40}, {10, 10}, {40, 10}, {40, -10}, {10, -10}, {10, -40}, {-10, -40}, {-10, -10}, {-40, -10}, {-40, 10}},    // Rough triangle
-    {{-1, 1}, {-1, 4}, {1, 4}, {1, 1}, {4, 1}, {4, -1}, {1, -1}, {1, -4}, {-1, -4}, {-1, -1}, {-4, -1}, {-4, 1}}, // Jagged triangle
-    {{-1, 1}, {-1, 4}, {1, 4}, {1, 1}, {4, 1}, {4, -1}, {1, -1}, {1, -4}, {-1, -4}, {-1, -1}, {-4, -1}, {-4, 1}},     // Rectangle-like
-    {{-1, 1}, {-1, 4}, {1, 4}, {1, 1}, {4, 1}, {4, -1}, {1, -1}, {1, -4}, {-1, -4}, {-1, -1}, {-4, -1}, {-4, 1}}     // Odd shape
+    {{-20, 0}, {-10, 20}, {10, 20}, {20, 0}, {10, -20}, {-10, -20}}, // Hexagonal
+    {{-20, 10}, {0, 20}, {10, 0}, {20, 0}, {0, -20}, {-10, -20}},    // Hex with cutout
+    {{-15, 15}, {0, 10}, {15, 15}, {10, -10}, {0, -5}, {-10, -10}}, // Tie like
+    {{0, 15}, {10, 5}, {20, 10}, {0, -10}, {-20, 10}, {-10, 5}},     // Lotus kinda
+    {{-10, 0}, {-5, 10}, {5, 10}, {10, 0}, {5, -10}, {-5, -10}}     // Small hex
 };
 
 //{{-10, -10}, {10, -10}, {10, 10}, {-10, 10}, {0, 0}}, // Square-like
@@ -56,47 +68,19 @@ int[NUM_ASTEROID_SHAPES][12][2] asteroidShapes = {
 //{{-12, -8}, {10, -8}, {10, 8}, {-12, 8}, {0, -12}},     // Rectangle-like
 //{{-10, -12}, {12, -8}, {6, 12}, {-6, 12}, {-12, -8}}     // Odd shape
 
-// Array to store all asteroids
-//#define MAX_ASTEROIDS 5
-//Asteroid[MAX_ASTEROIDS] asteroids;
 
-#define MAX_BIG_ASTEROIDS 1
+#define MAX_BIG_ASTEROIDS 5
 #define MAX_MEDIUM_ASTEROIDS 20
 #define MAX_SMALL_ASTEROIDS 40
 
-//Asteroid[MAX_BIG_ASTEROIDS] asteroids;
+int bigAsteroidSpawnTimer = 0;
+int BIG_ASTEROID_SPAWN_INTERVAL = 300; // Approx. 5 seconds at 60 FPS (300 frames)
+int MAX_CONCURRENT_BIG_ASTEROIDS = 5;
+
 Asteroid[MAX_BIG_ASTEROIDS] bigAsteroids;
 Asteroid[MAX_MEDIUM_ASTEROIDS] mediumAsteroids;
 Asteroid[MAX_SMALL_ASTEROIDS] smallAsteroids;
 
-// Function to initialize an asteroid
-//void init_asteroid(int i, int size)
-//{
-//    asteroids[i].x = rand() % SCREEN_WIDTH;
-//    asteroids[i].y = rand() % SCREEN_HEIGHT;
-//
-//    if (rand() % 2 == 0)
-//        asteroids[i].speedX = (rand() % 3 + 1);
-//    else
-//        asteroids[i].speedX = -(rand() % 3 + 1);
-//
-//    if (rand() % 2 == 0)
-//        asteroids[i].speedY = (rand() % 3 + 1);
-//    else
-//        asteroids[i].speedY = -(rand() % 3 + 1);
-//
-//    asteroids[i].size = size;
-//
-//    // Assign shape based on size
-//    if (size == 2)  // Big
-//        asteroids[i].shapeType = rand() % 2;  // 0 or 1
-//    else if (size == 1)  // Medium
-//        asteroids[i].shapeType = 2 + (rand() % 2);  // 2 or 3
-//    else  // Small
-//        asteroids[i].shapeType = 4;  // Only one small shape
-//
-//    asteroids[i].active = true;
-//}
 
 void init_asteroid(Asteroid* a, int size)
 {
@@ -112,21 +96,24 @@ void init_asteroid(Asteroid* a, int size)
         a->speedY = (rand() % 3 + 1);
     else
         a->speedY = -(rand() % 3 + 1);
+	
+	if (a->speedX == 0) a->speedX = 1.0;
+    if (a->speedY == 0) a->speedY = 1.0;
 
-    a->speedX = 0;
-    a->speedY = 0;
+    //a->speedX = 0;
+    //a->speedY = 0;
 
     // Set random spawn position, or you can assign it explicitly after init
-    //a->x = rand() % SCREEN_WIDTH;
-    //a->y = rand() % SCREEN_HEIGHT;
+    a->x = rand() % SCREEN_WIDTH;
+    a->y = rand() % SCREEN_HEIGHT;
 
-    a->x = SCREEN_WIDTH/2;
-    a->y = SCREEN_HEIGHT/2;
+    //->x = SCREEN_WIDTH/2 + 40;
+    //a->y = SCREEN_HEIGHT/2 + 40;
 
     // Assign shape based on size
     if (size == 2)  // Big
-        //a->shapeType = rand() % 2;  // 0 or 1
-        a->shapeType = 0;  // 0 or 1
+        a->shapeType = rand() % 2;  // 0 or 1
+        //a->shapeType = 0;  // 0 or 1
     else if (size == 1)  // Medium
         a->shapeType = 2 + (rand() % 2);  // 2 or 3
     else  // Small
@@ -142,8 +129,8 @@ void spawn_big(int x, int y)
             init_asteroid(&bigAsteroids[i], 2);  // 2 = big
             bigAsteroids[i].x = x;
             bigAsteroids[i].y = y;
-            bigAsteroids[i].speedX = (rand() % 5 - 2);  // random -2..2
-            bigAsteroids[i].speedY = (rand() % 5 - 2);
+            bigAsteroids[i].speedX = (rand() % 5 - 2);  if(bigAsteroids[i].speedX==0) bigAsteroids[i].speedX=1;
+            bigAsteroids[i].speedY = (rand() % 5 - 2);	if(bigAsteroids[i].speedY==0) bigAsteroids[i].speedY=1;
             break;
         }
     }
@@ -158,8 +145,8 @@ void spawn_medium(int x, int y)
             init_asteroid(&mediumAsteroids[i], 1);  // 1 = medium
             mediumAsteroids[i].x = x;
             mediumAsteroids[i].y = y;
-            mediumAsteroids[i].speedX = (rand() % 5 - 2);
-            mediumAsteroids[i].speedY = (rand() % 5 - 2);
+            mediumAsteroids[i].speedX = (rand() % 5 - 2); if(mediumAsteroids[i].speedX==0) mediumAsteroids[i].speedX=1;
+            mediumAsteroids[i].speedY = (rand() % 5 - 2); if(mediumAsteroids[i].speedY==0) mediumAsteroids[i].speedY=1;
             break;
         }
     }
@@ -174,8 +161,8 @@ void spawn_small(int x, int y)
             init_asteroid(&smallAsteroids[i], 0);  // 0 = small
             smallAsteroids[i].x = x;
             smallAsteroids[i].y = y;
-            smallAsteroids[i].speedX = (rand() % 5 - 2);
-            smallAsteroids[i].speedY = (rand() % 5 - 2);
+            smallAsteroids[i].speedX = (rand() % 5 - 2); if(smallAsteroids[i].speedX==0) smallAsteroids[i].speedX=1;
+            smallAsteroids[i].speedY = (rand() % 5 - 2); if(smallAsteroids[i].speedY==0) smallAsteroids[i].speedY=1;
             break;
         }
     }
@@ -210,7 +197,7 @@ void update_asteroid(Asteroid* a)
 {
     a->x += a->speedX;
     a->y += a->speedY;
-    // You can add screen wrapping or collision here
+    
     if (a->x < 0) a->x += SCREEN_WIDTH;
     if (a->x >= SCREEN_WIDTH) a->x -= SCREEN_WIDTH;
     if (a->y < 0) a->y += SCREEN_HEIGHT;
@@ -218,33 +205,26 @@ void update_asteroid(Asteroid* a)
 }
 
 
-// Function to update the position of an asteroid
-//void update_asteroid(int i)
-//{
-//    if (asteroids[i].active) {
-//        asteroids[i].x += asteroids[i].speedX;
-//        asteroids[i].y += asteroids[i].speedY;
-//
-//        // Wrap around screen
-//        if (asteroids[i].x < 0) asteroids[i].x += SCREEN_WIDTH;
-//        if (asteroids[i].x >= SCREEN_WIDTH) asteroids[i].x -= SCREEN_WIDTH;
-//        if (asteroids[i].y < 0) asteroids[i].y += SCREEN_HEIGHT;
-//        if (asteroids[i].y >= SCREEN_HEIGHT) asteroids[i].y -= SCREEN_HEIGHT;
-//    }
-//}
-
 void draw_asteroid(Asteroid* a)
 {
     if (!a->active) return;
 
     int shapeType = a->shapeType;  // Assuming shapeType is part of your struct
+	
+	int num_vertices = 6;
 
     // Draw the lines of the asteroid based on its shape
-    for (int j = 0; j < 5; j++) {
+    for (int j = 0; j < num_vertices; j++) {
         int x1 = a->x + asteroidShapes[shapeType][j][0];
         int y1 = a->y + asteroidShapes[shapeType][j][1];
-        int x2 = a->x + asteroidShapes[shapeType][(j + 1) % 5][0];
-        int y2 = a->y + asteroidShapes[shapeType][(j + 1) % 5][1];
+
+        // The next vertex index, wrapping around using num_vertices
+        int next_vertex_index = (j + 1) % num_vertices;
+
+        int x2 = a->x + asteroidShapes[shapeType][next_vertex_index][0];
+        int y2 = a->y + asteroidShapes[shapeType][next_vertex_index][1];
+
+        draw_line(x1, y1, x2, y2);
 
         draw_line(x1, y1, x2, y2);
     }
@@ -265,24 +245,7 @@ void draw_asteroids()
             draw_asteroid(&smallAsteroids[i]);
 }
 
-// Function to draw an asteroid
-//void draw_asteroid(int i)
-//{
-//    if (asteroids[i].active) {
-//        int shapeType = asteroids[i].shapeType;
-//
-//        // Draw the lines of the asteroid based on its shape
-//        for (int j = 0; j < 5; j++) {
-//            int x1 = asteroids[i].x + asteroidShapes[shapeType][j][0];
-//            int y1 = asteroids[i].y + asteroidShapes[shapeType][j][1];
-//            int x2 = asteroids[i].x + asteroidShapes[shapeType][(j + 1) % 5][0];
-//            int y2 = asteroids[i].y + asteroidShapes[shapeType][(j + 1) % 5][1];
-//
-//            // Draw the line (use `draw_line` from your existing code)
-//            draw_line(x1, y1, x2, y2);
-//        }
-//    }
-//}
+
 void destroy_asteroid(Asteroid* a)
 {
     int currentSize = a->size;
@@ -324,65 +287,25 @@ void destroy_asteroid(Asteroid* a)
 }
 
 
-//void destroy_asteroid(int asteroidIndex)
-//{
-//    int currentSize = asteroids[asteroidIndex].size;
-//
-//    if (currentSize > 0)
-//    {
-//        // Try to spawn 2 smaller asteroids
-//        for (int i = 0; i < MAX_ASTEROIDS; i++)
-//        {
-//            if (!asteroids[i].active)
-//            {
-//                init_asteroid(i, currentSize - 1);
-//                asteroids[i].x = asteroids[asteroidIndex].x;
-//                asteroids[i].y = asteroids[asteroidIndex].y;
-//
-//                // Give them a slight push in random direction
-//                asteroids[i].speedX = (rand() % 5 - 2);  // -2, -1, 0, 1, 2
-//                asteroids[i].speedY = (rand() % 5 - 2);
-//                break;  // Only one asteroid per loop, will create two
-//            }
-//        }
-//
-//        for (int i = 0; i < MAX_ASTEROIDS; i++)
-//        {
-//            if (!asteroids[i].active)
-//            {
-//                init_asteroid(i, currentSize - 1);
-//                asteroids[i].x = asteroids[asteroidIndex].x;
-//                asteroids[i].y = asteroids[asteroidIndex].y;
-//                asteroids[i].speedX = (rand() % 5 - 2);
-//                asteroids[i].speedY = (rand() % 5 - 2);
-//                break;
-//            }
-//        }
-//    }
-//
-//    // Deactivate the original asteroid
-//    asteroids[asteroidIndex].active = false;
-//}
-
 // Function to check if a bullet has collided with an asteroid
 bool check_bullet_asteroid_collision(Projectile *bullet, Asteroid *asteroid)
 {
+	if (!bullet || !asteroid || !bullet->active || !asteroid->active) return false;
     // Simple distance check (considering a radius for both the bullet and asteroid)
     float distanceX = bullet->x - asteroid->x;
     float distanceY = bullet->y - asteroid->y;
     float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
 
-    // If the distance is small enough (within a threshold), we consider it a collision
-    // You can adjust the threshold based on the size of the asteroid and bullet
+
     float collisionThreshold = 20.0;
     if (distance < collisionThreshold) {
-        return true;  // Collision detected
+        return true;
     }
-    return false;  // No collision
+    return false; 
 }
 
 // Function to update bullets and check for collisions with asteroids
-void update_bullets_and_asteroids()
+/* void update_bullets_and_asteroids()
 {
     for (int i = 0; i < MAX_PROJECTILES; i++)
     {
@@ -399,6 +322,7 @@ void update_bullets_and_asteroids()
                 {
                     destroy_asteroid(&bigAsteroids[j]);
                     projectiles[i].active = false;
+					score++;
                     break;
                 }
             }
@@ -410,6 +334,7 @@ void update_bullets_and_asteroids()
                 {
                     destroy_asteroid(&mediumAsteroids[j]);
                     projectiles[i].active = false;
+					score++;
                     break;
                 }
             }
@@ -421,9 +346,169 @@ void update_bullets_and_asteroids()
                 {
                     destroy_asteroid(&smallAsteroids[j]);
                     projectiles[i].active = false;
+					score++;
                     break;
                 }
             }
+        }
+    }
+} */
+void update_bullets_and_asteroids()
+{
+    for (int i = 0; i < MAX_PROJECTILES; i++)
+    {
+        if (projectiles[i].active)
+        {
+            // Bullet movement is now in update_projectiles()
+            // projectiles[i].x += projectiles[i].velocityX; // Moved
+            // projectiles[i].y += projectiles[i].velocityY; // Moved
+
+            bool hit = false;
+            // Check collision with BIG asteroids
+            for (int j = 0; j < MAX_BIG_ASTEROIDS; j++)
+            {
+                if (bigAsteroids[j].active && check_bullet_asteroid_collision(&projectiles[i], &bigAsteroids[j]))
+                {
+                    destroy_asteroid(&bigAsteroids[j]);
+                    projectiles[i].active = false;
+					score++;
+                    hit = true;
+                    break;
+                }
+            }
+            if(hit) continue; // Next projectile if this one hit
+
+            // Check collision with MEDIUM asteroids
+            for (int j = 0; j < MAX_MEDIUM_ASTEROIDS; j++) // Removed projectiles[i].active check as it's covered by 'hit'
+            {
+                if (mediumAsteroids[j].active && check_bullet_asteroid_collision(&projectiles[i], &mediumAsteroids[j]))
+                {
+                    destroy_asteroid(&mediumAsteroids[j]);
+                    projectiles[i].active = false;
+					score++;
+                    hit = true;
+                    break;
+                }
+            }
+            if(hit) continue;
+
+            // Check collision with SMALL asteroids
+            for (int j = 0; j < MAX_SMALL_ASTEROIDS; j++)
+            {
+                if (smallAsteroids[j].active && check_bullet_asteroid_collision(&projectiles[i], &smallAsteroids[j]))
+                {
+                    destroy_asteroid(&smallAsteroids[j]);
+                    projectiles[i].active = false;
+					score++;
+                    // hit = true; // Not strictly needed for the last one
+                    break; 
+                }
+            }
+        }
+    }
+}
+
+float get_asteroid_collision_radius(Asteroid* asteroid) {
+    if (!asteroid) return 0; // Safety check
+
+    // Based on your requirement:
+    // First two (shapeType 0, 1) = big
+    // Second two (shapeType 2, 3) = medium
+    // Last fifth (shapeType 4) = small
+    switch (asteroid->shapeType) {
+        case 0:
+        case 1:
+            return ASTEROID_RADIUS_BIG;
+        case 2:
+        case 3:
+            return ASTEROID_RADIUS_MEDIUM;
+        case 4:
+            return ASTEROID_RADIUS_SMALL;
+        default:
+            // Fallback if shapeType is unexpected, perhaps based on size
+            if (asteroid->size == 2) return ASTEROID_RADIUS_BIG;
+            if (asteroid->size == 1) return ASTEROID_RADIUS_MEDIUM;
+            return ASTEROID_RADIUS_SMALL; // Default to small
+    }
+}
+
+bool check_ship_asteroid_collision(Ship* ship, Asteroid* asteroid)
+{
+    if (!ship || !asteroid || !asteroid->active) { // Check if asteroid is active
+        return false;
+    }
+
+    float distanceX = ship->x - asteroid->x;
+    float distanceY = ship->y - asteroid->y;
+    float distanceSquared = distanceX * distanceX + distanceY * distanceY; 
+
+    // --- MODIFIED --- Use dynamic asteroid radius
+    float current_asteroid_radius = get_asteroid_collision_radius(asteroid);
+    float combinedRadii = SHIP_COLLISION_RADIUS + current_asteroid_radius;
+    // --- END MODIFIED ---
+    
+    return distanceSquared < combinedRadii * combinedRadii;
+}
+
+void relocate_all_active_asteroids_safely(Ship* player_ship) {
+    float ship_cx = player_ship->x;
+    float ship_cy = player_ship->y;
+    float min_dist_sq = MIN_ASTEROID_RESPAWN_DISTANCE_FROM_SHIP * MIN_ASTEROID_RESPAWN_DISTANCE_FROM_SHIP;
+    int attempts; 
+    
+    for (int i = 0; i < MAX_BIG_ASTEROIDS; i++) {
+        if (bigAsteroids[i].active) {
+            attempts = 0;
+            float new_x, new_y;
+            float dist_sq;
+            do {
+                new_x = rand() % SCREEN_WIDTH;
+                new_y = rand() % SCREEN_HEIGHT;
+                float dx = new_x - ship_cx;
+                float dy = new_y - ship_cy;
+                dist_sq = dx * dx + dy * dy;
+                attempts++;
+            } while (dist_sq < min_dist_sq && attempts < 100); // Max 100 attempts
+            bigAsteroids[i].x = new_x;
+            bigAsteroids[i].y = new_y;
+        }
+    }
+
+    // Relocate Medium Asteroids
+    for (int i = 0; i < MAX_MEDIUM_ASTEROIDS; i++) {
+        if (mediumAsteroids[i].active) {
+            attempts = 0;
+            float new_x, new_y;
+            float dist_sq;
+            do {
+                new_x = rand() % SCREEN_WIDTH;
+                new_y = rand() % SCREEN_HEIGHT;
+                float dx = new_x - ship_cx;
+                float dy = new_y - ship_cy;
+                dist_sq = dx * dx + dy * dy;
+                attempts++;
+            } while (dist_sq < min_dist_sq && attempts < 100);
+            mediumAsteroids[i].x = new_x;
+            mediumAsteroids[i].y = new_y;
+        }
+    }
+
+    // Relocate Small Asteroids
+    for (int i = 0; i < MAX_SMALL_ASTEROIDS; i++) {
+        if (smallAsteroids[i].active) {
+            attempts = 0;
+            float new_x, new_y;
+            float dist_sq;
+            do {
+                new_x = rand() % SCREEN_WIDTH;
+                new_y = rand() % SCREEN_HEIGHT;
+                float dx = new_x - ship_cx;
+                float dy = new_y - ship_cy;
+                dist_sq = dx * dx + dy * dy;
+                attempts++;
+            } while (dist_sq < min_dist_sq && attempts < 100);
+            smallAsteroids[i].x = new_x;
+            smallAsteroids[i].y = new_y;
         }
     }
 }
@@ -495,6 +580,39 @@ void fire_projectile(float shipX, float shipY, float shipAngle)
             projectiles[i].velocityY = 5.0 * sin(shipAngle);
             projectiles[i].active = true;
             break;
+        }
+    }
+}
+
+// Function to update projectiles (movement and OOB)
+void update_projectiles_state() // --- RENAMED & MODIFIED ---
+{
+    for (int i = 0; i < MAX_PROJECTILES; i++)
+    {
+        if (projectiles[i].active)
+        {
+            projectiles[i].x += projectiles[i].velocityX;
+            projectiles[i].y += projectiles[i].velocityY;
+
+            if (projectiles[i].x < 0 || projectiles[i].x >= SCREEN_WIDTH || projectiles[i].y < 0 || projectiles[i].y >= SCREEN_HEIGHT)
+            {
+                projectiles[i].active = false;
+            }
+        }
+    }
+}
+
+void draw_projectiles()
+{
+    for (int i = 0; i < MAX_PROJECTILES; i++)
+    {
+        if (projectiles[i].active)
+        {
+            // Draw the projectile as a short line or point
+            // If drawing as a line (like a tracer):
+            draw_line((int)projectiles[i].x, (int)projectiles[i].y, (int)(projectiles[i].x - projectiles[i].velocityX), (int)(projectiles[i].y - projectiles[i].velocityY));
+            // If drawing as a point (more common for Asteroids bullets):
+            //draw_point((int)projectiles[i].x, (int)projectiles[i].y);
         }
     }
 }
@@ -585,98 +703,283 @@ void draw_ship(int centerX, int centerY, float angle, bool thrusting, int flameF
     }
 }
 
+void spawn_new_big_asteroid_offscreen() {
+    // Count currently active big asteroids
+    int activeBigCount = 0;
+    for (int i = 0; i < MAX_BIG_ASTEROIDS; i++) {
+        if (bigAsteroids[i].active) {
+            activeBigCount++;
+        }
+    }
+
+    if (activeBigCount >= MAX_CONCURRENT_BIG_ASTEROIDS) {
+        return; // Don't spawn if too many are already active
+    }
+
+    for (int i = 0; i < MAX_BIG_ASTEROIDS; i++) {
+        if (!bigAsteroids[i].active) {
+            init_asteroid(&bigAsteroids[i], 2); // size 2 = Big
+
+            int edge = rand() % 4; // 0: top, 1: bottom, 2: left, 3: right
+            float spawn_x, spawn_y;
+            float speed_x, speed_y;
+            // Random base speed between 1.0 and 2.0 (can be adjusted)
+            float base_speed = 1.0 + (float)(rand() % 101) / 100.0; 
+
+            if (edge == 0) { // Top edge
+                spawn_x = (float)(rand() % SCREEN_WIDTH);
+                spawn_y = -30.0; // Start just above screen
+                speed_x = ((float)(rand() % 201) / 100.0 - 1.0) * base_speed * 0.5; // Random horizontal component (-0.5 to 0.5 of base_speed)
+                speed_y = base_speed; // Move downwards
+            } else if (edge == 1) { // Bottom edge
+                spawn_x = (float)(rand() % SCREEN_WIDTH);
+                spawn_y = SCREEN_HEIGHT + 30.0; // Start just below screen
+                speed_x = ((float)(rand() % 201) / 100.0 - 1.0) * base_speed * 0.5;
+                speed_y = -base_speed; // Move upwards
+            } else if (edge == 2) { // Left edge
+                spawn_x = -30.0; // Start just left of screen
+                spawn_y = (float)(rand() % SCREEN_HEIGHT);
+                speed_x = base_speed; // Move rightwards
+                speed_y = ((float)(rand() % 201) / 100.0 - 1.0) * base_speed * 0.5; // Random vertical component
+            } else { // Right edge (edge == 3)
+                spawn_x = SCREEN_WIDTH + 30.0; // Start just right of screen
+                spawn_y = (float)(rand() % SCREEN_HEIGHT);
+                speed_x = -base_speed; // Move leftwards
+                speed_y = ((float)(rand() % 201) / 100.0 - 1.0) * base_speed * 0.5;
+            }
+            bigAsteroids[i].x = spawn_x;
+            bigAsteroids[i].y = spawn_y;
+            bigAsteroids[i].speedX = speed_x;
+            bigAsteroids[i].speedY = speed_y;
+            
+            // init_asteroid already sets shapeType for big asteroids (0 or 1)
+            // bigAsteroids[i].shapeType = rand() % 2; // This is done in init_asteroid
+
+            break; // One asteroid spawned, exit loop
+        }
+    }
+}
+
 
 
 void main( void )
 {
-
+	score = 0;
+	lives = 3;
+    isAlive = true;
+	
     Ship playerShip = { SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0.0, 0.0, 0.0 };
 
-    float rotationSpeed = 3.0;  // radians per second
-    float thrustPower = 1.0;    // pixels per second square
-    float friction = 0.98;      // friction factor
+    float rotationSpeed = 4.0;  // radians per second
+    float thrustPower = 3.0;    // pixels per second square
+    float friction = 0.985;      // friction factor
     float deltaT = 1.0/60.0; //DeltaTime
     bool isThrusting = false;
     int flameFrameCounter = 0;
 
-    // Initialize asteroids
-    for (int i = 0; i < MAX_BIG_ASTEROIDS; i++)
-    {
-        init_asteroid(&bigAsteroids[i], 2);  // size 2 = Big
+    // Initialize asteroids and ensure they are not on top of player
+    for (int i = 0; i < MAX_BIG_ASTEROIDS; i++) {
+        init_asteroid(&bigAsteroids[i], 2);
     }
+    // Call relocate once at the beginning to ensure initial asteroids are away from player start
+    relocate_all_active_asteroids_safely(&playerShip); 
 
     while (true)
     {
-        clear_screen(color_black);
+		clear_screen(color_black);
+		
+		if (isAlive)
+		{
+			isThrusting = false;
 
-        isThrusting = false;
+			// Rotate ship
+			if (gamepad_left() > 0)
+				playerShip.angle -= rotationSpeed * (deltaT);
 
-		// Rotate ship
-        if (gamepad_left() > 0)
-            playerShip.angle -= rotationSpeed * (deltaT);
+			if (gamepad_right() > 0)
+				playerShip.angle += rotationSpeed * (deltaT);
 
-        if (gamepad_right() > 0)
-            playerShip.angle += rotationSpeed * (deltaT);
+			// Thrust forward
+			if (gamepad_button_a() > 0)
+			{
+				playerShip.velocityX += thrustPower * cos(playerShip.angle) * (deltaT);
+				playerShip.velocityY += thrustPower * sin(playerShip.angle) * (deltaT);
+				isThrusting = true;
+			}
 
-        // Thrust forward
-        if (gamepad_button_a() > 0)
-        {
-            playerShip.velocityX += thrustPower * cos(playerShip.angle) * (deltaT);
-            playerShip.velocityY += thrustPower * sin(playerShip.angle) * (deltaT);
-            isThrusting = true;
-        }
-
-        // Fire projectile
-        if (gamepad_button_b() == 1)  // Assuming button B fires the projectile
-        {
-            fire_projectile(playerShip.x, playerShip.y, playerShip.angle);
-        }
+			// Fire projectile
+			if (gamepad_button_b() == 1)  // Assuming button B fires the projectile
+			{
+				fire_projectile(playerShip.x, playerShip.y, playerShip.angle);
+			}
 
 
-        // Update position
-        playerShip.x += playerShip.velocityX;
-        playerShip.y += playerShip.velocityY;
+			// Update position
+			playerShip.x += playerShip.velocityX;
+			playerShip.y += playerShip.velocityY;
 
-        // Apply friction
-        playerShip.velocityX *= friction;
-        playerShip.velocityY *= friction;
+			// Apply friction
+			playerShip.velocityX *= friction;
+			playerShip.velocityY *= friction;
 
-        // Wrap screen
-        if (playerShip.x < 0) playerShip.x += SCREEN_WIDTH;
-        if (playerShip.x >= SCREEN_WIDTH) playerShip.x -= SCREEN_WIDTH;
-        if (playerShip.y < 0) playerShip.y += SCREEN_HEIGHT;
-        if (playerShip.y >= SCREEN_HEIGHT) playerShip.y -= SCREEN_HEIGHT;
+			// Wrap screen
+			if (playerShip.x < 0) playerShip.x += SCREEN_WIDTH;
+			if (playerShip.x >= SCREEN_WIDTH) playerShip.x -= SCREEN_WIDTH;
+			if (playerShip.y < 0) playerShip.y += SCREEN_HEIGHT;
+			if (playerShip.y >= SCREEN_HEIGHT) playerShip.y -= SCREEN_HEIGHT;
+			
+			bigAsteroidSpawnTimer++;
+            if (bigAsteroidSpawnTimer >= BIG_ASTEROID_SPAWN_INTERVAL) {
+                bigAsteroidSpawnTimer = 0;
+                spawn_new_big_asteroid_offscreen();
+            }
 
-        // Update and draw asteroids (all pools)
-        for (int i = 0; i < MAX_BIG_ASTEROIDS; i++)
-        {
-            update_asteroid(&bigAsteroids[i]);
-            draw_asteroid(&bigAsteroids[i]);
-        }
-        for (int i = 0; i < MAX_MEDIUM_ASTEROIDS; i++)
-        {
-            update_asteroid(&mediumAsteroids[i]);
-            draw_asteroid(&mediumAsteroids[i]);
-        }
-        for (int i = 0; i < MAX_SMALL_ASTEROIDS; i++)
-        {
-            update_asteroid(&smallAsteroids[i]);
-            draw_asteroid(&smallAsteroids[i]);
-        }
+			for (int i = 0; i < MAX_BIG_ASTEROIDS; i++) update_asteroid(&bigAsteroids[i]);
+			for (int i = 0; i < MAX_MEDIUM_ASTEROIDS; i++) update_asteroid(&mediumAsteroids[i]);
+			for (int i = 0; i < MAX_SMALL_ASTEROIDS; i++) update_asteroid(&smallAsteroids[i]);
+			
+			update_projectiles_state();
+			
+			update_bullets_and_asteroids();
+			
+			bool ship_was_hit_this_frame = false;
+			
+			for (int i = 0; i < MAX_BIG_ASTEROIDS; i++) {
+                if (bigAsteroids[i].active && check_ship_asteroid_collision(&playerShip, &bigAsteroids[i])) {
+                    lives--;
+                    destroy_asteroid(&bigAsteroids[i]); // Destroy asteroid first
+                    ship_was_hit_this_frame = true;
+                    break; 
+                }
+            }
+            // Check MEDIUM asteroids (only if not hit by a big one)
+            if (!ship_was_hit_this_frame) {
+                for (int i = 0; i < MAX_MEDIUM_ASTEROIDS; i++) {
+                    if (mediumAsteroids[i].active && check_ship_asteroid_collision(&playerShip, &mediumAsteroids[i])) {
+                        lives--;
+                        destroy_asteroid(&mediumAsteroids[i]);
+                        ship_was_hit_this_frame = true;
+                        break;
+                    }
+                }
+            }
+            // Check SMALL asteroids (only if not hit by big or medium)
+            if (!ship_was_hit_this_frame) {
+                for (int i = 0; i < MAX_SMALL_ASTEROIDS; i++) {
+                    if (smallAsteroids[i].active && check_ship_asteroid_collision(&playerShip, &smallAsteroids[i])) {
+                        lives--;
+                        destroy_asteroid(&smallAsteroids[i]);
+                        ship_was_hit_this_frame = true;
+                        break;
+                    }
+                }
+            }
+			
+			if (ship_was_hit_this_frame) {
+                playerShip.x = SCREEN_WIDTH / 2.0;
+                playerShip.y = SCREEN_HEIGHT / 2.0;
+                playerShip.velocityX = 0.0;
+                playerShip.velocityY = 0.0;
+                playerShip.angle = 0.0;
 
-        // Update flame animation
-        flameFrameCounter = (flameFrameCounter + 1) % 4;
+				
+				relocate_all_active_asteroids_safely(&playerShip);
+				
+                if (lives <= 0) {
+                    isAlive = false;
+                }
+            }
 
-        // Draw ship
-        draw_ship((int)playerShip.x, (int)playerShip.y, playerShip.angle, isThrusting, flameFrameCounter);
+			// Update flame animation
+			flameFrameCounter = (flameFrameCounter + 1) % 4;
 
-        // Update and draw projectiles
-        update_projectiles();
+			draw_asteroids();
+			
+			// Draw ship
+			draw_ship((int)playerShip.x, (int)playerShip.y, playerShip.angle, isThrusting, flameFrameCounter);
+			
+			draw_projectiles();
+			
+			int_to_string(score, numberBuffer);
+			
+			set_drawing_point(10, 10);
+			print("Score:");
+			
+			set_drawing_point(70, 10);
+			print(numberBuffer);
+			
+			set_drawing_point(10, 30);
+			print("Life:");
 
-        // Update bullets and check for asteroid collisions
-        update_bullets_and_asteroids();
+			if(lives == 3)
+			{
+				set_drawing_point(70, 30);
+				print("V V V");
+			}
+			if(lives == 2)
+			{
+				set_drawing_point(70, 30);
+				print("V V");
+			}
+			if(lives == 1)
+			{
+				set_drawing_point(70, 30);
+				print("V");
+			}
+			
+		}
+		else
+		{
+			if(score > maxScore)
+			{
+				maxScore = score;
+			}
+			
+			set_drawing_point(SCREEN_WIDTH/2 - 50, SCREEN_HEIGHT/2 - 10);
+            print("GAME OVER");
 
-        end_frame();
+            int_to_string(score, numberBuffer);
+            set_drawing_point(SCREEN_WIDTH/2 - 70, SCREEN_HEIGHT/2 + 10);
+            print("Final Score:");
+            set_drawing_point(SCREEN_WIDTH/2 + 60, SCREEN_HEIGHT/2 + 10);
+            print(numberBuffer);
+			
+			int_to_string(maxScore, numberBuffer);
+            set_drawing_point(SCREEN_WIDTH/2 - 70, SCREEN_HEIGHT/2 + 30);
+            print("Highscore:");
+            set_drawing_point(SCREEN_WIDTH/2 + 60, SCREEN_HEIGHT/2 + 30);
+            print(numberBuffer);
+			
+			set_drawing_point(SCREEN_WIDTH/2 - 90, SCREEN_HEIGHT/2 + 60);
+			print("Press A to restart");
+			
+			if (gamepad_button_a() == 1)  // Assuming button B fires the projectile
+			{
+				score = 0;
+                lives = 3;
+                isAlive = true;
+                playerShip.x = SCREEN_WIDTH / 2.0;
+                playerShip.y = SCREEN_HEIGHT / 2.0;
+                playerShip.velocityX = 0.0;
+                playerShip.velocityY = 0.0;
+                playerShip.angle = 0;
+
+                // Clear all projectiles
+                for(int i=0; i<MAX_PROJECTILES; i++) projectiles[i].active = false;
+
+                // Clear all asteroids and re-initialize starting ones
+                for(int i=0; i<MAX_BIG_ASTEROIDS; i++) bigAsteroids[i].active = false;
+                for(int i=0; i<MAX_MEDIUM_ASTEROIDS; i++) mediumAsteroids[i].active = false;
+                for(int i=0; i<MAX_SMALL_ASTEROIDS; i++) smallAsteroids[i].active = false;
+
+                for (int i = 0; i < MAX_BIG_ASTEROIDS; i++) { // Re-initialize big asteroids
+                    init_asteroid(&bigAsteroids[i], 2);
+                }
+                relocate_all_active_asteroids_safely(&playerShip); // Ensure they are away
+            }
+		}
+       
+		end_frame();
     }
 
 }
